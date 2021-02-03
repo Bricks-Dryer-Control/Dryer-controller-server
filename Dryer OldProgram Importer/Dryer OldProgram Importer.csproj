@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Dryer_OldProgram_Importer</RootNamespace>
+  </PropertyGroup>
+
+</Project>
