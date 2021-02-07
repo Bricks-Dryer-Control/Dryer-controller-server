@@ -5,4 +5,13 @@
     <RootNamespace>Serial_Modbus_Agent</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.7.7" />
+    <PackageReference Include="System.IO.Ports" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dryer Server Interfaces\Dryer Server Interfaces.csproj" />
+  </ItemGroup>
+
 </Project>
