@@ -1,5 +1,6 @@
 using System;
-using Dryer_Server.Persistance.Model;
+using Dryer_Server.Persistance.Model.Historical;
+using Dryer_Server.Persistance.Model.Settings;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ namespace Dryer_Server.Persistance
         {
             var historicalConnectionStringBuilder = new SqliteConnectionStringBuilder();
             historicalConnectionStringBuilder.DataSource = "./historic.db";
-            historicalConnectionStringBuilder.ForeignKeys = false;
+            historicalConnectionStringBuilder.ForeignKeys = true;
             historicalConnectionStringBuilder.Mode = SqliteOpenMode.ReadWriteCreate;
             historicalConnectionStringBuilder.Cache = SqliteCacheMode.Default;
             return historicalConnectionStringBuilder.ToString();

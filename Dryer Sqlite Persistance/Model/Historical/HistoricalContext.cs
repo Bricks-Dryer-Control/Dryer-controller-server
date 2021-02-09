@@ -2,7 +2,7 @@ using Dryer_Server.Persistance;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dryer_Server.Persistance.Model
+namespace Dryer_Server.Persistance.Model.Historical
 {
     public class HistoricalContext : DbContext
     {
