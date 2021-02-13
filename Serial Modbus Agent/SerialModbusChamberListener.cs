@@ -35,13 +35,14 @@ namespace Dryer_Server.Serial_Modbus_Agent
         };
 
         public SerialModbusChamberListener(string port, int baud = 9600, int dataBits = 8, char parity = 'N', int stopBits = 2)
-            : this(new SerialPort(port, baud, GetParity(parity), dataBits, GetStopBits(stopBits)))
-        { }
-
-        public SerialModbusChamberListener(SerialPort serialPort)
         {
-            this.serialPort = serialPort;
-            modbusBuffer = new ModbusBuffer(msgSize, DetectReadTempHumm);
+            this.serialPort = new SerialPort(port, baud, GetParity(parity), dataBits, GetStopBits(stopBits));
+            modbusBuffer = new ModbusBuffer(msgSize, DetectReadTempHumm); 
+        }
+
+        protected SerialModbusChamberListener()
+        {
+            modbusBuffer = new ModbusBuffer(msgSize, DetectReadTempHumm); 
         }
 
         public void Add(int slaveId, IValueReceiver<ChamberSensors> receiver)
@@ -68,7 +69,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             }
         }
 
-        private void ReadValues(IEnumerable<byte> current)
+        public void ReadValues(IEnumerable<byte> current)
         {
             using var responseEnum = current.GetEnumerator();
             responseEnum.MoveNext();
@@ -78,18 +79,28 @@ namespace Dryer_Server.Serial_Modbus_Agent
             {
                 var buff = new byte[4];
                 for (int i = 0; i < 5; i++) responseEnum.MoveNext();
-                for (int i = 0; i < 4; i++)
-                {
-                    responseEnum.MoveNext();
-                    buff[i] = responseEnum.Current;
-                }
-                double h = BitConverter.ToDouble(buff);
-                for (int i = 0; i < 4; i++)
-                {
-                    responseEnum.MoveNext();
-                    buff[i] = responseEnum.Current;
-                }
-                double t = BitConverter.ToDouble(buff);
+                
+                responseEnum.MoveNext();
+                buff[1] = responseEnum.Current;
+                responseEnum.MoveNext();
+                buff[0] = responseEnum.Current;
+                responseEnum.MoveNext();
+                buff[3] = responseEnum.Current;
+                responseEnum.MoveNext();
+                buff[2] = responseEnum.Current;
+
+                double h = BitConverter.ToSingle(buff);
+                
+                responseEnum.MoveNext();
+                buff[1] = responseEnum.Current;
+                responseEnum.MoveNext();
+                buff[0] = responseEnum.Current;
+                responseEnum.MoveNext();
+                buff[3] = responseEnum.Current;
+                responseEnum.MoveNext();
+                buff[2] = responseEnum.Current;
+                
+                double t = BitConverter.ToSingle(buff);
 
                 receiver.ValueReceived(new ChamberSensors { Humidity = h, Temperature = t });
             }
@@ -103,7 +114,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         }
 
         private static byte[] readTempHummStartSequence = new byte[] { 0x03, 0x01, 0x00, 0x00, 0x05 };
-        private static bool DetectReadTempHumm(IEnumerable<byte> data)
+        public static bool DetectReadTempHumm(IEnumerable<byte> data)
         {
             if (!readTempHummStartSequence.SequenceEqual(data.Skip(1).Take(5)))
                 return false;

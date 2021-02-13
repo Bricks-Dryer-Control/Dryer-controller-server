@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Dryer_Server.Serial_Modbus_Agent
 {
-    internal class ModbusBuffer
+    public class ModbusBuffer
     {
         byte[] buff;
         int pos = 0;
