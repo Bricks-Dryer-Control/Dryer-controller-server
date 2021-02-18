@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option csharp_namespace = "Dryer_Grpc_Service";
+
+package status;
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+service Chamber {
+  rpc CheckChamber (CheckChamberRequest) returns (ChamberInfo);
+  rpc CheckAllChambers (google.protobuf.Empty) returns (ChamberInfos);
+  rpc CheckAdditionalTemperatures (google.protobuf.Empty) returns (TemperaturesStatus);
+  rpc SetActuators (ChamberValues) returns (google.protobuf.Empty);
+  rpc StopAll (google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+message CheckChamberRequest {
+  int32 no = 1;
+}
+
+message TemperaturesStatus {
+  message TempStatus {
+    string id = 1;
+    float value = 2;
+    google.protobuf.Timestamp lastReading = 3;
+  }
+  repeated TempStatus results = 1;
+}
+
+message ChamberStatus {
+  enum WorkingStatus {
+    off = 0;
+    waiting = 1;
+    queued = 2;
+    working = 3;
+    addon = 4;
+  }
+  WorkingStatus workingStatus = 1;
+  bool isAuto = 2;
+  google.protobuf.Int32Value queuePosition = 3;
+}
+
+message ChamberValues {
+  int32 inFlow = 1;
+  int32 outFlow = 2;
+  int32 throughFlow = 3;
+}
+
+message ChamberInfo {
+  int32 no = 1;
+  float temperature = 2;
+  float humidity = 3;
+  google.protobuf.Timestamp readingTime = 4;
+  ChamberValues actualActuators = 5;
+  ChamberValues setActuators = 6;
+  ChamberStatus status = 7;
+}
+
+message ChamberInfos {
+  repeated ChamberInfo results = 1;
+}
