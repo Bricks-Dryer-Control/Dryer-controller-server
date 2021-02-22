@@ -8,8 +8,8 @@ namespace Dryer_Server.Persistance.Model.Historical
     {
         public HistoricalContext(DbContextOptions<HistoricalContext> options) : base(options) { } 
 
-        public virtual DbSet<ChamberSensor> ChamberSensors { get; set; } 
-        //public virtual DbSet<ChamberState> CahmberStates { get; set; } 
+        public virtual DbSet<ChamberSensorValue> Sensors { get; set; } 
+        public virtual DbSet<ChamberControllerState> States { get; set; } 
     }
 
     public class DesignTimeHistoricalContextFactory : IDesignTimeDbContextFactory<HistoricalContext> 
