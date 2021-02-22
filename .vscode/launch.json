@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Dryer Grpc Service/bin/Debug/net5.0/Dryer Grpc Service.dll",
+            "program": "${workspaceFolder}/Dryer Webapi Service/bin/Debug/net5.0/Dryer Webapi Service.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Dryer Grpc Service",
+            "cwd": "${workspaceFolder}/Dryer Webapi Service",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {

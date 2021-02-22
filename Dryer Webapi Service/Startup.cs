@@ -28,20 +28,12 @@ namespace Dryer_Server.WebApi
         {
             services.AddCors((options =>
             {
-                options.AddPolicy("Read",
+                options.AddPolicy("NoCors",
                     builder =>
                     {
                         builder.AllowAnyOrigin()
-                            .WithMethods("GET")
-                            .AllowAnyHeader();
-                    });
-
-                options.AddPolicy("Write",
-                    builder =>
-                    {
-                        builder.WithOrigins("http://localhost:8080")
-                                            .AllowAnyHeader()
-                                            .AllowAnyMethod();
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
                     });
             }));
             services.AddControllers();
@@ -61,7 +53,7 @@ namespace Dryer_Server.WebApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dryer_Server.WebApi v1"));
             }
             
-            app.UseCors(options => options.AllowAnyOrigin()); 
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()); 
 
             app.UseRouting();
 

@@ -89,7 +89,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 responseEnum.MoveNext();
                 buff[2] = responseEnum.Current;
 
-                double h = BitConverter.ToSingle(buff);
+                var h = BitConverter.ToSingle(buff);
                 
                 responseEnum.MoveNext();
                 buff[1] = responseEnum.Current;
@@ -100,7 +100,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 responseEnum.MoveNext();
                 buff[2] = responseEnum.Current;
                 
-                double t = BitConverter.ToSingle(buff);
+                var t = BitConverter.ToSingle(buff);
 
                 receiver.ValueReceived(new ChamberSensors { Humidity = h, Temperature = t });
             }
