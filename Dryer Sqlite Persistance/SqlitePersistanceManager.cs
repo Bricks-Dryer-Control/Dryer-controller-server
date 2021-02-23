@@ -41,11 +41,11 @@ namespace Dryer_Server.Persistance
                 .ToList();
         }
 
-        public void Save(int id, ChamberControllerStatus status)
+        public void Save(int id, ChamberConvertedStatus status)
         {
             using var ctx = GetHistoricalCtx();
             
-            ctx.States.Add(new ChamberControllerState(status, id));
+            ctx.States.Add(new ChamberConvertedState(status, id));
         }
 
         public void Save(int id, ChamberSensors sensors)
@@ -77,12 +77,12 @@ namespace Dryer_Server.Persistance
                     .FirstOrDefault();
         }
 
-        public IEnumerable<(int id, ChamberControllerStatus status, ChamberSensors sensors)> GetLastValues(IEnumerable<int> ids)
+        public IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> GetLastValues(IEnumerable<int> ids)
         {
             using var ctx = GetHistoricalCtx();
             foreach (var id in ids)
             {
-                ChamberControllerStatus status = ctx.States
+                ChamberConvertedStatus status = ctx.States
                     .Where(s => s.ChamberId == id)
                     .OrderByDescending(s => s.TimestampUtc)
                     .FirstOrDefault();
@@ -92,6 +92,11 @@ namespace Dryer_Server.Persistance
                     .FirstOrDefault();
                 yield return (id, status, sensors);
             }
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }

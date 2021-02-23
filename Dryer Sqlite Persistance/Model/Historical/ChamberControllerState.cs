@@ -8,15 +8,15 @@ namespace Dryer_Server.Persistance.Model.Historical
     [Keyless]
     [Table("State")]
     [Index("ChamberId", "TimestampUtc", IsUnique = true)]
-    public record ChamberControllerState: ChamberControllerStatus
+    public record ChamberConvertedState: ChamberConvertedStatus
     {        
         public int ChamberId { get; set; }
         public DateTime TimestampUtc { get; set;}
 
-        public ChamberControllerState()
+        public ChamberConvertedState()
         { }
 
-        public ChamberControllerState(ChamberControllerStatus other, int id): base(other)
+        public ChamberConvertedState(ChamberConvertedStatus other, int id): base(other)
         {
             ChamberId = id;
             TimestampUtc = DateTime.UtcNow;

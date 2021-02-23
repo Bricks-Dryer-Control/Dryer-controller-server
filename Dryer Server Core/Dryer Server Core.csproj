@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dryer Server Interfaces\Dryer Server Interfaces.csproj" />
+    <ProjectReference Include="..\Serial Modbus Agent\Serial Modbus Agent.csproj" />
+    <ProjectReference Include="..\Dryer Sqlite Persistance\Dryer Sqlite Persistance.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

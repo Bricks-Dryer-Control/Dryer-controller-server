@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Dryer_Server.Interfaces
 {
-    public interface IDryerHisctoricalValuesPersistance
+    public interface IDryerHisctoricalValuesPersistance: IDisposable
     {
-        IEnumerable<(int id, ChamberControllerStatus status, ChamberSensors sensors)> GetLastValues(IEnumerable<int> ids);
+        IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> GetLastValues(IEnumerable<int> ids);
         IEnumerable<IChamberSensorHistoricValue> GetSensorsHistory(int id, DateTime startUtc, DateTime finishUtc);
-        void Save(int id, ChamberControllerStatus status);
+        void Save(int id, ChamberConvertedStatus status);
         void Save(int id, ChamberSensors sensors);
     }
 }
