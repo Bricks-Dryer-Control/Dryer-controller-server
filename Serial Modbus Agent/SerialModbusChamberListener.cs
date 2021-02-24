@@ -14,7 +14,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         private CancellationTokenSource stoper = null;
         private Task listenerTask = null;
         private ModbusBuffer modbusBuffer;
-        private Dictionary<int, IValueReceiver<ChamberSensors>> chambers = new Dictionary<int, IValueReceiver<ChamberSensors>>();
+        private Dictionary<int, IValueReceiver<ChamberSensors>> chambers = new();
 
         private const int msgSize = 25;
 
@@ -113,7 +113,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             serialPort.Close();
         }
 
-        private static byte[] readTempHummStartSequence = new byte[] { 0x03, 0x01, 0x00, 0x00, 0x05 };
+        private readonly static byte[] readTempHummStartSequence = new byte[] { 0x03, 0x01, 0x00, 0x00, 0x05 };
         public static bool DetectReadTempHumm(IEnumerable<byte> data)
         {
             if (!readTempHummStartSequence.SequenceEqual(data.Skip(1).Take(5)))

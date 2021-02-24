@@ -10,8 +10,8 @@ namespace Dryer_Server.Persistance
 {
     public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, IDryerConfigurationPersistance
     {
-        DbContextOptions<SettingsContext> settingsCtxOptions;
-        DbContextOptions<HistoricalContext> historicalCtxOptions;
+        readonly DbContextOptions<SettingsContext> settingsCtxOptions;
+        readonly DbContextOptions<HistoricalContext> historicalCtxOptions;
 
         HistoricalContext GetHistoricalCtx() => new HistoricalContext(historicalCtxOptions);
         SettingsContext GetSettingsCtx() => new SettingsContext(settingsCtxOptions);

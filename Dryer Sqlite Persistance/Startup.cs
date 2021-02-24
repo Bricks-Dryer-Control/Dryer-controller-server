@@ -11,7 +11,6 @@ namespace Dryer_Server.Persistance
     {
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddDbContext<HistoricalContext>(
                 options => options.UseSqlite(GetHistoricalConnectionString())
             );
@@ -23,21 +22,25 @@ namespace Dryer_Server.Persistance
 
         public static string GetHistoricalConnectionString()
         {
-            var historicalConnectionStringBuilder = new SqliteConnectionStringBuilder();
-            historicalConnectionStringBuilder.DataSource = "./historic.db";
-            historicalConnectionStringBuilder.ForeignKeys = true;
-            historicalConnectionStringBuilder.Mode = SqliteOpenMode.ReadWriteCreate;
-            historicalConnectionStringBuilder.Cache = SqliteCacheMode.Default;
+            var historicalConnectionStringBuilder = new SqliteConnectionStringBuilder
+            {
+                DataSource = "./historic.db",
+                ForeignKeys = true,
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Cache = SqliteCacheMode.Default
+            };
             return historicalConnectionStringBuilder.ToString();
         }
 
         public static string GetSettingsConnectionString()
         {
-            var settingsConectionStringBuilder = new SqliteConnectionStringBuilder();
-            settingsConectionStringBuilder.DataSource = "./settings.db";
-            settingsConectionStringBuilder.ForeignKeys = true;
-            settingsConectionStringBuilder.Mode = SqliteOpenMode.ReadWriteCreate;
-            settingsConectionStringBuilder.Cache = SqliteCacheMode.Default;
+            var settingsConectionStringBuilder = new SqliteConnectionStringBuilder
+            {
+                DataSource = "./settings.db",
+                ForeignKeys = true,
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Cache = SqliteCacheMode.Default
+            };
             return settingsConectionStringBuilder.ToString();
         }
     }

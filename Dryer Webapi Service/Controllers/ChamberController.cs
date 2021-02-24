@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Dryer_Server.WebApi.Model;
+using Dryer_Server.Interfaces;
 using Microsoft.AspNetCore.Cors;
 
 namespace Dryer_Server.WebApi.Controllers
@@ -13,41 +14,28 @@ namespace Dryer_Server.WebApi.Controllers
     [Route("[controller]")]
     public class ChamberController : ControllerBase
     {
+        IUiDataKeeper data; 
+        IMainController controller;
+
+        public ChamberController(IUiDataKeeper data, IMainController controller)
+        {
+            this.data = data;
+            this.controller = controller;
+        }
+
         static Random rnd = new Random();
 
         [HttpGet]
         public IEnumerable<ChamberInfo> Get()
         {
-            var time = DateTime.UtcNow;
-
-            var infos = Enumerable.Range(1, 20).Select(i => new ChamberInfo {
-                No = i,
-                Humidity = rnd.Next(0, 101),
-                Temperature = rnd.Next(-20, 101),
-                ReadingTime = (time += new TimeSpan(0, 0, 2)),
-                ActualActuators = new ChamberValues { InFlow = rnd.Next(0, 481), OutFlow = rnd.Next(0, 481), ThroughFlow = rnd.Next(0, 481) },
-                SetActuators = new ChamberValues { InFlow = rnd.Next(0, 481), OutFlow = rnd.Next(0, 481), ThroughFlow = rnd.Next(0, 481) },
-                Status = new ChamberStatus { IsAuto = rnd.Next() % 2 == 0, QueuePosition = i % 5 == 0 ? null : i, Working = (ChamberStatus.WorkingStatus)(rnd.Next()%5)}
-            });
-
-            return infos;
+            return data.GetChambers();
         }
 
         [HttpGet]
         [Route("{no}")]
         public ChamberInfo Get(int no)
         {
-            var time = DateTime.UtcNow;
-
-            return  new ChamberInfo {
-                No = no,
-                Humidity = rnd.Next(0, 101),
-                Temperature = rnd.Next(-20, 101),
-                ReadingTime = time,
-                ActualActuators = new ChamberValues { InFlow = rnd.Next(0, 481), OutFlow = rnd.Next(0, 481), ThroughFlow = rnd.Next(0, 481) },
-                SetActuators = new ChamberValues { InFlow = rnd.Next(0, 481), OutFlow = rnd.Next(0, 481), ThroughFlow = rnd.Next(0, 481) },
-                Status = new ChamberStatus { IsAuto = rnd.Next() % 2 == 0, QueuePosition = null, Working = (ChamberStatus.WorkingStatus)(rnd.Next()%5)}
-            };
+            return data.GetChamber(no);
         }
 
         public record PostRequest
@@ -60,17 +48,7 @@ namespace Dryer_Server.WebApi.Controllers
         [Route("{no}")]
         public ChamberInfo Post(int no, PostRequest body)
         {
-            var time = DateTime.UtcNow;
-
-            return new ChamberInfo {
-                No = no,
-                Humidity = rnd.Next(0, 101),
-                Temperature = rnd.Next(-20, 101),
-                ReadingTime = time,
-                ActualActuators = new ChamberValues { InFlow = rnd.Next(0, 481), OutFlow = rnd.Next(0, 481), ThroughFlow = rnd.Next(0, 481) },
-                SetActuators = body.NewSets ?? new ChamberValues { InFlow = rnd.Next(0, 481), OutFlow = rnd.Next(0, 481), ThroughFlow = rnd.Next(0, 481) },
-                Status = new ChamberStatus { IsAuto = body.IsOn, QueuePosition = null, Working = (ChamberStatus.WorkingStatus)(rnd.Next()%5)}
-            };
+            controller.ChangeActuators(no, body.NewSets.InFlow, body.NewSets.OutFlow, body.NewSets.ThroughFlow);
         }
     }
 }

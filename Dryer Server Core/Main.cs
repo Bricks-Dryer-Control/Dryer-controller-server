@@ -11,11 +11,11 @@ namespace Dryer_Server.Core
 {
     public partial class Main : IMainController, IDisposable
     {
-        private IUiInterface ui;
-        private ISerialModbusChamberListener modbusListener;
-        private IDryerConfigurationPersistance configurationPersistance;
-        private IDryerHisctoricalValuesPersistance hisctoricalPersistance;
-        private IModbusControllerCommunicator controllersCommunicator;
+        private readonly IUiInterface ui;
+        private readonly SerialModbusChamberListener modbusListener;
+        private readonly IDryerConfigurationPersistance configurationPersistance;
+        private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
+        private readonly IModbusControllerCommunicator controllersCommunicator;
 
         private Dictionary<int, Chamber> Chambers { get; } = new Dictionary<int, Chamber>();
         private Dictionary<int, RoofConfig> Roofs { get; } = new Dictionary<int, RoofConfig>
@@ -52,17 +52,19 @@ namespace Dryer_Server.Core
 
             foreach (var chamberSettings in chambers)
             {
-                var aditional = new AdditionalConfig();
-                aditional.RoofRoof = Roofs.Values
-                    .Where(r => r.RoofNo == chamberSettings.Id)
-                    .FirstOrDefault()?.No;
-                aditional.RoofThrough = Roofs.Values
-                    .Where(r => r.ThroughNo == chamberSettings.Id)
-                    .FirstOrDefault()?.No;
-                aditional.Went = Wents
-                    .Where(kv => kv.Value == chamberSettings.Id)
-                    .Select(kv => kv.Key)
-                    .FirstOrDefault();
+                var aditional = new AdditionalConfig
+                {
+                    RoofRoof = Roofs.Values
+                        .Where(r => r.RoofNo == chamberSettings.Id)
+                        .FirstOrDefault()?.No,
+                    RoofThrough = Roofs.Values
+                        .Where(r => r.ThroughNo == chamberSettings.Id)
+                        .FirstOrDefault()?.No,
+                    Went = Wents
+                        .Where(kv => kv.Value == chamberSettings.Id)
+                        .Select(kv => kv.Key)
+                        .FirstOrDefault()
+                };
 
                 var chamber = new Chamber(chamberSettings, this, aditional);
                 if (chamberSettings.SensorId.HasValue)

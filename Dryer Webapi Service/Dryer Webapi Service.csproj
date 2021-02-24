@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dryer Server Interfaces\Dryer Server Interfaces.csproj" />
+    <ProjectReference Include="..\Dryer Server Core\Dryer Server Core.csproj" />
   </ItemGroup>
 
 </Project>

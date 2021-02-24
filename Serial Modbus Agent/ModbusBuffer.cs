@@ -6,10 +6,10 @@ namespace Dryer_Server.Serial_Modbus_Agent
 {
     public class ModbusBuffer
     {
-        byte[] buff;
+        readonly byte[] buff;
         int pos = 0;
         Func<IEnumerable<byte>, bool> check;
-        IEnumerable<byte> collection => buff.Skip(pos).Concat(buff.Take(pos));
+        IEnumerable<byte> Collection => buff.Skip(pos).Concat(buff.Take(pos));
 
         public ModbusBuffer(int size, Func<IEnumerable<byte>, bool> check)
         {
@@ -17,7 +17,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             this.check = check;
         }
 
-        public IEnumerable<byte> Current => collection;
+        public IEnumerable<byte> Current => Collection;
 
         public bool InsertAndCheck(byte val)
         {
@@ -25,7 +25,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             if (pos >= buff.Length)
                 pos = 0;
 
-            return check(collection);
+            return check(Collection);
         }
     }
 }

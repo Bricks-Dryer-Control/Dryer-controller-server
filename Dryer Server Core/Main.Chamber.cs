@@ -9,15 +9,15 @@ namespace Dryer_Server.Core
         private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>
         {
             private int Id => Configuration.Id;
-            private Main parrent;
+            private readonly Main parrent;
             public ChamberConfiguration Configuration { get; }
-            public AdditionalConfig additionalConfig { get; }
+            public AdditionalConfig AdditionalConfig { get; }
 
             public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
             {
                 Configuration = configuration;
                 this.parrent = parrent;
-                this.additionalConfig = additionalConfig;
+                AdditionalConfig = additional;
             }
 
             public void ValueReceived(ChamberSensors v)
@@ -61,12 +61,12 @@ namespace Dryer_Server.Core
                 TrySave(exs, status);
                 TrySendToUi(exs, status);
 
-                if (additionalConfig?.RoofRoof != null)
-                    TrySendRoofRoofToUi(exs, additionalConfig.RoofRoof.Value, v.Current4, v.Setted4);
-                if (additionalConfig?.RoofThrough != null)
-                    TrySendRoofThroughToUi(exs, additionalConfig.RoofThrough.Value, v.Current4, v.Setted4);
-                if (additionalConfig?.Went != null)
-                    TrySendWentToUi(exs, additionalConfig.Went.Value, v.Current4, v.Setted4);
+                if (AdditionalConfig?.RoofRoof != null)
+                    TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v.Current4, v.Setted4);
+                if (AdditionalConfig?.RoofThrough != null)
+                    TrySendRoofThroughToUi(exs, AdditionalConfig.RoofThrough.Value, v.Current4, v.Setted4);
+                if (AdditionalConfig?.Went != null)
+                    TrySendWentToUi(exs, AdditionalConfig.Went.Value, v.Current4, v.Setted4);
 
                 parrent.HandleExceptions(exs);
             }

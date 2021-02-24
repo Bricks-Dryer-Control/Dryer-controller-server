@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dryer_Server.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,6 +27,10 @@ namespace Dryer_Server.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var ui = new UiDataKeeper();
+            services.AddSingleton(typeof(IMainController), new Dryer_Server.Core.Main(ui));
+            services.AddSingleton(typeof(IUiDataKeeper), ui);
+
             services.AddCors((options =>
             {
                 options.AddPolicy("NoCors",

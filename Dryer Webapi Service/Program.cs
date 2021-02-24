@@ -13,6 +13,7 @@ namespace Dryer_Server.WebApi
     {
         public static void Main(string[] args)
         {
+            
             CreateHostBuilder(args).Build().Run();
         }
 
