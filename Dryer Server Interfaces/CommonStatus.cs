@@ -1,6 +1,6 @@
 using System;
 
-namespace Dryer_Server.WebApi.Model
+namespace Dryer_Server.Interfaces
 {
     public record CommonStatus
     {

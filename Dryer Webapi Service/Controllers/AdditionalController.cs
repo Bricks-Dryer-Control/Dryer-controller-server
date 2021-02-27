@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Dryer_Server.WebApi.Model;
+using Dryer_Server.Interfaces;
 
 namespace Dryer_Server.WebApi.Controllers
 {
@@ -7,52 +8,35 @@ namespace Dryer_Server.WebApi.Controllers
     [Route("[controller]")]
     public class AdditionalController : ControllerBase
     {
+        IUiDataKeeper data; 
+        IMainController controller;
+
+        public AdditionalController(IUiDataKeeper data, IMainController controller)
+        {
+            this.data = data;
+            this.controller = controller;
+        }
+
         [HttpGet]
         public AdditionalInfo Get()
         {
-            return new AdditionalInfo
-            {
-                Roofs = new AdditionalRoofInfo[]
-                {
-                    new AdditionalRoofInfo
-                    {
-                        roof = new AdditionalStatus {actualValue = 10, setValue = 10, status = new ChamberStatus{IsAuto=false, QueuePosition=null, Working=ChamberStatus.WorkingStatus.addon}},
-                        through = new AdditionalStatus {actualValue = 10, setValue = 10, status = new ChamberStatus{IsAuto=false, QueuePosition=null, Working=ChamberStatus.WorkingStatus.addon}},
-                    },
-                    new AdditionalRoofInfo
-                    {
-                        roof = new AdditionalStatus {actualValue = 10, setValue = 10, status = new ChamberStatus{IsAuto=false, QueuePosition=null, Working=ChamberStatus.WorkingStatus.addon}},
-                        through = new AdditionalStatus {actualValue = 10, setValue = 10, status = new ChamberStatus{IsAuto=false, QueuePosition=null, Working=ChamberStatus.WorkingStatus.addon}},
-                    },
-                },
-                Wents = new AdditionalStatus[]
-                {
-                    new AdditionalStatus
-                    {
-                        actualValue = 13,
-                        setValue = 100,
-                        status = new ChamberStatus{IsAuto=false, Working = ChamberStatus.WorkingStatus.queued, QueuePosition = 12}
-                    }
-                }
-            };
+            return data.GetAdditionalInfo();
         }
 
         [HttpPost]
         [Route("Went/{no}")]
         public AdditionalInfo Went(int no, int value)
         {
-            var x = Get();
-            x.Wents[no - 1].setValue = value;
-            return x;
+            controller.ChangeWent(no, value);
+            return data.GetAdditionalInfo();
         }
 
         [HttpPost]
         [Route("Roof/{no}")]
         public AdditionalInfo Roof(int no, bool roof)
         {
-            var x = Get();
-            x.Roofs[no - 1].roof.setValue = 480;
-            return x;
+            controller.ChangeRoof(no, roof);
+            return data.GetAdditionalInfo();
         }
     }
 }

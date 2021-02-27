@@ -13,5 +13,6 @@ namespace Dryer_Server.Interfaces
         void ChangeWent(int no, int value);
         void ChangeRoof(int no, bool isRoof);
         void StopAll();
+        CommonStatus GetCommon();
     }
 }

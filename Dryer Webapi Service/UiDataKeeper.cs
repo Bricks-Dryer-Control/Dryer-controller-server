@@ -1,46 +1,137 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dryer_Server.Interfaces;
+using Dryer_Server.WebApi.Model;
 
 namespace Dryer_Server.WebApi
 {
     public interface IUiDataKeeper
     {
-
+        IEnumerable<ChamberInfo> GetChambers();
+        ChamberInfo GetChamber(int no);
+        AdditionalInfo GetAdditionalInfo();
     }
 
     public class UiDataKeeper: IUiInterface, IUiDataKeeper
     {
+        private ChamberInfo[] chambers = null;
+        private AdditionalInfo additionalInfo = null;
+
         public void SensorsReceived(int id, DateTime timestampUtc, ChamberSensors values)
         {
-
+            var chamber = chambers[id -1];
+            chamber.Humidity = values.Humidity;
+            chamber.Temperature = values.Temperature;
+            chamber.ReadingTime = timestampUtc;
         }
         
         public void StatusChanged(int id, DateTime timestampUtc, ChamberConvertedStatus values)
         {
+            var chamber = chambers[id -1];
+            chamber.ActualActuators = new ChamberValues
+            {
+                InFlow = values.InFlowPosition,
+                OutFlow = values.OutFlowPosition,
+                ThroughFlow = values.ThroughFlowPosition,
+            };
+            chamber.SetActuators = new ChamberValues
+            {
+                InFlow = values.InFlowSet,
+                OutFlow = values.OutFlowSet,
+                ThroughFlow = values.ThroughFlowSet,
+            };
+            chamber.Status = new ChamberStatus
+            {
+                IsAuto = false,
+                QueuePosition = values.QueuePosition,
+                Working = values.Working,
+            };
+        }
 
+        public void WentChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status)
+        {
+            var went = additionalInfo.Wents[no - 1];
+            SetAdditionalStatus(went, position, set, queuePosition, status);
+        }
+
+        public void RoofThroughChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status)
+        {
+            var roofThrough = additionalInfo.Roofs[no - 1].through;
+            SetAdditionalStatus(roofThrough, position, set, queuePosition, status);
         }
         
-        public async Task InitializationFinishedAsync(IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> initializationData, IEnumerable<AdditionalStatus> initializationWents, IEnumerable<(AdditionalStatus Roof, AdditionalStatus Through)> initializationRoofs)
+        public void RoofRoofChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status)
         {
-
-        }
-        
-        public void WentChanged(int no, int position, int set)
-        {
-
-        }
-        
-        public void RoofThroughChanged(int no, int position, int set)
-        {
-
-        }
-        
-        public void RoofRoofChanged(int no, int position, int set)
-        {
-
+            var roofRoof = additionalInfo.Roofs[no - 1].roof;
+            SetAdditionalStatus(roofRoof, position, set, queuePosition, status);
         }
 
+        private static void SetAdditionalStatus(Model.AdditionalStatus toChange, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status)
+        {
+            toChange.actualValue = position;
+            toChange.setValue = set;
+            toChange.status = new ChamberStatus
+            {
+                IsAuto = false,
+                QueuePosition = queuePosition,
+                Working = status,
+            };
+        }
+
+        public async Task InitializationFinishedAsync(IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> initializationData, IEnumerable<Interfaces.AdditionalStatus> initializationWents, IEnumerable<(Interfaces.AdditionalStatus Roof, Interfaces.AdditionalStatus Through)> initializationRoofs)
+        {
+            var initializeAdditionalInfo = Task.Run(() => InitializeAdditionalInfo(initializationWents, initializationRoofs));
+            var initializeChambers = Task.Run(() => InitializeChambers(initializationData));
+
+            await initializeAdditionalInfo;
+            await initializeChambers;
+        }
+
+        private void InitializeChambers(IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> initializationData)
+        {
+            var chambers = initializationData
+                .Select(((int id, ChamberConvertedStatus status, ChamberSensors sensors) x) 
+                    => new ChamberInfo(x.id, x.status, x.sensors))
+                .ToList();
+            
+            var maxChamber = chambers.Select(c => c.No).Max();
+            this.chambers = new ChamberInfo[maxChamber];
+            for (var i = 0; i < maxChamber; i++)
+                this.chambers[i] = chambers.FirstOrDefault(c => c.No == i + 1) ?? new ChamberInfo();
+        }
+
+        private void InitializeAdditionalInfo(IEnumerable<Interfaces.AdditionalStatus> initializationWents, IEnumerable<(Interfaces.AdditionalStatus Roof, Interfaces.AdditionalStatus Through)> initializationRoofs)
+        {
+            var wents = initializationWents.Select(w => new Model.AdditionalStatus(w)).ToArray();
+            var roofs = initializationRoofs
+                .Select(r => new AdditionalRoofInfo
+                {
+                    roof = new Model.AdditionalStatus(r.Roof),
+                    through = new Model.AdditionalStatus(r.Through),
+                })
+                .ToArray();
+            additionalInfo = new AdditionalInfo
+            {
+                Roofs = roofs,
+                Wents = wents,
+            };
+        }
+
+        public IEnumerable<ChamberInfo> GetChambers()
+        {
+            return chambers;
+        }
+
+        public ChamberInfo GetChamber(int no)
+        {
+            return chambers[no - 1];
+        }
+
+        public AdditionalInfo GetAdditionalInfo()
+        {
+            return additionalInfo;
+        }
     }
 }

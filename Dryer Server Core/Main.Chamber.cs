@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dryer_Server.Interfaces;
+using static Dryer_Server.Interfaces.ChamberConvertedStatus;
 
 namespace Dryer_Server.Core
 {
@@ -62,20 +63,20 @@ namespace Dryer_Server.Core
                 TrySendToUi(exs, status);
 
                 if (AdditionalConfig?.RoofRoof != null)
-                    TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v.Current4, v.Setted4);
+                    TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v);
                 if (AdditionalConfig?.RoofThrough != null)
-                    TrySendRoofThroughToUi(exs, AdditionalConfig.RoofThrough.Value, v.Current4, v.Setted4);
+                    TrySendRoofThroughToUi(exs, AdditionalConfig.RoofThrough.Value, v);
                 if (AdditionalConfig?.Went != null)
-                    TrySendWentToUi(exs, AdditionalConfig.Went.Value, v.Current4, v.Setted4);
+                    TrySendWentToUi(exs, AdditionalConfig.Went.Value, v);
 
                 parrent.HandleExceptions(exs);
             }
 
-            private void TrySendWentToUi(List<Exception> exs, int no, int position, int set)
+            private void TrySendWentToUi(List<Exception> exs, int no, ChamberControllerStatus status)
             {
                 try
                 {
-                    parrent.ui.WentChanged(no, position, set);
+                    parrent.ui.WentChanged(no, status.Current4, status.Setted4, status.QueuePosition, GetStatus(status));
                 }
                 catch (Exception e)
                 {
@@ -83,11 +84,11 @@ namespace Dryer_Server.Core
                 }
             }
 
-            private void TrySendRoofThroughToUi(List<Exception> exs, int no, int position, int set)
+            private void TrySendRoofThroughToUi(List<Exception> exs, int no, ChamberControllerStatus status)
             {
                 try
                 {
-                    parrent.ui.RoofThroughChanged(no, position, set);
+                    parrent.ui.RoofThroughChanged(no, status.Current4, status.Setted4, status.QueuePosition, GetStatus(status));
                 }
                 catch (Exception e)
                 {
@@ -95,16 +96,31 @@ namespace Dryer_Server.Core
                 }
             }
 
-            private void TrySendRoofRoofToUi(List<Exception> exs, int no, int position, int set)
+            private void TrySendRoofRoofToUi(List<Exception> exs, int no, ChamberControllerStatus status)
             {
                 try
                 {
-                    parrent.ui.RoofRoofChanged(no, position, set);
+                    parrent.ui.RoofRoofChanged(no, status.Current4, status.Setted4, status.QueuePosition, GetStatus(status));
                 }
                 catch (Exception e)
                 {
                     exs.Add(e);
                 }
+            }
+
+            private WorkingStatus GetStatus(ChamberControllerStatus status)
+            {
+                if (status.workingStatus == ChamberControllerStatus.WorkingStatus.Off)
+                    return WorkingStatus.off;
+                
+                if (status.workingStatus != ChamberControllerStatus.WorkingStatus.NoOperation)
+                {
+                    if (status.ActualActuator == 5)
+                        return WorkingStatus.addon;
+                    return WorkingStatus.working;
+                }
+
+                return status.QueuePosition == null ? WorkingStatus.waiting : WorkingStatus.queued;
             }
 
             private void TrySendToUi(List<Exception> exs, ChamberConvertedStatus status)

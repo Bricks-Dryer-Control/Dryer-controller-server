@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Dryer_Server.WebApi.Model;
 using Dryer_Server.Interfaces;
-using Microsoft.AspNetCore.Cors;
 
 namespace Dryer_Server.WebApi.Controllers
 {
@@ -49,6 +45,7 @@ namespace Dryer_Server.WebApi.Controllers
         public ChamberInfo Post(int no, PostRequest body)
         {
             controller.ChangeActuators(no, body.NewSets.InFlow, body.NewSets.OutFlow, body.NewSets.ThroughFlow);
+            return data.GetChamber(no);
         }
     }
 }

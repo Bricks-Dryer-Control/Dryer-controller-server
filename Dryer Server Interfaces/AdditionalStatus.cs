@@ -1,12 +1,9 @@
+using static Dryer_Server.Interfaces.ChamberConvertedStatus;
+
 namespace Dryer_Server.Interfaces
 {
     public record AdditionalStatus
     {
-        public enum WorkingStatus
-        {
-            off, waiting, queued, working, addon
-        };
-
         public WorkingStatus Working { get; set; }
         public bool IsAuto { get; set; }
         public int? QueuePosition { get; set; }

@@ -127,6 +127,17 @@ namespace Dryer_Server.Core
             controllersCommunicator.StopAllActuators();
         }
 
+        public CommonStatus GetCommon()
+        {
+            return new CommonStatus
+            {
+                Direction = false,
+                InQueue = 0,
+                TurnedOn = 0,
+                WorkingNow = 0,
+            };
+        }
+
         record RoofConfig
         {
             public int No { get; set; }
