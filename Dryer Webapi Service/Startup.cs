@@ -17,6 +17,9 @@ namespace Dryer_Server.WebApi
 {
     public class Startup
     {
+        static readonly UiDataKeeper ui = new UiDataKeeper();
+        static readonly Dryer_Server.Core.Main main = new Dryer_Server.Core.Main(ui);
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -28,7 +31,7 @@ namespace Dryer_Server.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             var ui = new UiDataKeeper();
-            services.AddSingleton(typeof(IMainController), new Dryer_Server.Core.Main(ui));
+            services.AddSingleton(typeof(IMainController), main);
             services.AddSingleton(typeof(IUiDataKeeper), ui);
 
             services.AddCors((options =>
@@ -51,6 +54,8 @@ namespace Dryer_Server.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var initTask = main.InitializeAsync();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -66,6 +71,9 @@ namespace Dryer_Server.WebApi
             {
                 endpoints.MapControllers();
             });
+
+            initTask.Wait();
+            main.Start();
         }
     }
 }

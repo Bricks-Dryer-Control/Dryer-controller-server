@@ -16,8 +16,27 @@ namespace Dryer_Server.WebApi
 
     public class UiDataKeeper: IUiInterface, IUiDataKeeper
     {
-        private ChamberInfo[] chambers = null;
-        private AdditionalInfo additionalInfo = null;
+        private static ChamberInfo[] chambers = null;
+        private static AdditionalInfo additionalInfo = null;
+
+        private static ChamberConvertedStatus DefaultStatus { get; } = new()
+        {
+            Working = ChamberConvertedStatus.WorkingStatus.off,
+            IsAuto = false,
+            QueuePosition = null,
+            InFlowPosition = 0,
+            OutFlowPosition = 0,
+            ThroughFlowPosition = 0,
+            InFlowSet = 0,
+            OutFlowSet = 0,
+            ThroughFlowSet = 0,
+        };
+
+        private static ChamberSensors DefaultSensors { get; } = new()
+        {
+            Humidity = 0F,
+            Temperature = 0F,
+        };
 
         public void SensorsReceived(int id, DateTime timestampUtc, ChamberSensors values)
         {
@@ -91,15 +110,15 @@ namespace Dryer_Server.WebApi
 
         private void InitializeChambers(IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> initializationData)
         {
-            var chambers = initializationData
+            var chamberList = initializationData
                 .Select(((int id, ChamberConvertedStatus status, ChamberSensors sensors) x) 
-                    => new ChamberInfo(x.id, x.status, x.sensors))
+                    => new ChamberInfo(x.id, x.status ?? DefaultStatus, x.sensors ?? DefaultSensors))
                 .ToList();
             
-            var maxChamber = chambers.Select(c => c.No).Max();
-            this.chambers = new ChamberInfo[maxChamber];
+            var maxChamber = chamberList.Select(c => c.No).Max();
+            chambers = new ChamberInfo[maxChamber];
             for (var i = 0; i < maxChamber; i++)
-                this.chambers[i] = chambers.FirstOrDefault(c => c.No == i + 1) ?? new ChamberInfo();
+                chambers[i] = chamberList.FirstOrDefault(c => c.No == i + 1) ?? new ChamberInfo(i+1, DefaultStatus, DefaultSensors);
         }
 
         private void InitializeAdditionalInfo(IEnumerable<Interfaces.AdditionalStatus> initializationWents, IEnumerable<(Interfaces.AdditionalStatus Roof, Interfaces.AdditionalStatus Through)> initializationRoofs)

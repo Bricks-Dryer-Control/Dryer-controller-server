@@ -14,7 +14,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         private CancellationTokenSource stoper = null;
         private Task listenerTask = null;
         private ModbusBuffer modbusBuffer;
-        private Dictionary<int, IValueReceiver<ChamberSensors>> chambers = new();
+        private Dictionary<int, List<IValueReceiver<ChamberSensors>>> chambers = new();
 
         private const int msgSize = 25;
 
@@ -46,7 +46,12 @@ namespace Dryer_Server.Serial_Modbus_Agent
         }
 
         public void Add(int slaveId, IValueReceiver<ChamberSensors> receiver)
-            => chambers.Add(slaveId, receiver);
+        {
+            if (chambers.TryGetValue(slaveId, out var receivers))
+                receivers.Add(receiver);
+            else
+                chambers.Add(slaveId, new List<IValueReceiver<ChamberSensors>>{ receiver });
+        }
 
         public void Start()
         {
@@ -54,8 +59,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 Stop();
 
             stoper = new CancellationTokenSource();
-            serialPort.Open();
             serialPort.DataReceived += SerialPort_DataReceived;
+            //serialPort.Open();
         }
 
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -75,7 +80,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             responseEnum.MoveNext();
             var slaveId = responseEnum.Current;
 
-            if (chambers.TryGetValue(slaveId, out var receiver))
+            if (chambers.TryGetValue(slaveId, out var receivers))
             {
                 var buff = new byte[4];
                 for (int i = 0; i < 5; i++) responseEnum.MoveNext();
@@ -102,7 +107,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 
                 var t = BitConverter.ToSingle(buff);
 
-                receiver.ValueReceived(new ChamberSensors { Humidity = h, Temperature = t });
+                foreach (var receiver in receivers)
+                    receiver.ValueReceived(new ChamberSensors { Humidity = h, Temperature = t });
             }
         }
 
