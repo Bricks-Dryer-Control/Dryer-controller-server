@@ -38,7 +38,7 @@ namespace Dryer_Server.Core
             var persistance = new SqlitePersistanceManager();
             configurationPersistance = persistance;
             hisctoricalPersistance = persistance;
-            controllersCommunicator = new ControllersCommunicator();
+            controllersCommunicator = new ControllersCommunicator("COM3");
         }
 
         public async Task InitializeAsync()
@@ -69,7 +69,7 @@ namespace Dryer_Server.Core
                 var chamber = new Chamber(chamberSettings, this, aditional);
                 if (chamberSettings.SensorId.HasValue)
                     modbusListener.Add(chamberSettings.SensorId.Value, chamber);
-                controllersCommunicator.Register(chamberSettings, chamber);
+                controllersCommunicator.Register(chamberSettings, true, chamber);
                 Chambers.Add(chamberSettings.Id, chamber);
             }
             await ui.InitializationFinishedAsync(await lastValues, initWents, initRoofs);

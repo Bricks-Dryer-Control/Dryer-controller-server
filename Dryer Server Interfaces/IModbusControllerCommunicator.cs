@@ -4,7 +4,7 @@ namespace Dryer_Server.Interfaces
 {
     public interface IModbusControllerCommunicator: IDisposable
     {
-        void Register(ChamberConfiguration configuration, IValueReceiver<ChamberControllerStatus> receiver);
+        void Register(ChamberConfiguration configuration, bool active, IValueReceiver<ChamberControllerStatus> receiver);
         void Start();
         void Stop();
         int SendActuators(int id, int actuator1, int actuator2, int actuator3);
