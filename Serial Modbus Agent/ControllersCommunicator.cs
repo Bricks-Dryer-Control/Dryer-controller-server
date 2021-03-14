@@ -162,7 +162,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
         }
-        private void WriteStop(byte id, ushort value)
+        private void WriteStop(byte id)
         {
             try
             {
