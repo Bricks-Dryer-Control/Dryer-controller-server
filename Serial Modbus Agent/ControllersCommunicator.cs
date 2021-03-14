@@ -96,13 +96,45 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             try
             {
-                rtu.ReadHoldingRegisters(chamber.Id, 4597, 2);
-                rtu.ReadHoldingRegisters(chamber.Id, 4599, 4);
+                var statusRaw = rtu.ReadHoldingRegisters(chamber.Id, 4597, 2);
+                var positionsRaw = rtu.ReadHoldingRegisters(chamber.Id, 4599, 4);
+                
+                var status = new ChamberControllerStatus
+                {
+                    ActualActuator = statusRaw[0],
+                    Current1 = positionsRaw[0],
+                    Current2 = positionsRaw[1],
+                    Current3 = positionsRaw[2],
+                    Current4 = positionsRaw[3],
+                    QueuePosition = GetQueuePosition(chamber),
+                    workingStatus = GetWorkingStatus(statusRaw, chamber),
+                };
+
+                Task.Run(() => chamber.Receiver.ValueReceived(status));
+                
+                if (status.workingStatus == ChamberControllerStatus.WorkingStatus.Off && status.QueuePosition == null)
+                    inMotion.Remove(chamber);
             }
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
+        }
+
+        private int? GetQueuePosition(Chamber chamber)
+        {
+            return queue.GetPosition(chamber.Id);
+        }
+
+        private ChamberControllerStatus.WorkingStatus GetWorkingStatus(ushort[] statusRaw, Chamber chamber)
+        {
+            if (statusRaw[1] != 0)
+                return (ChamberControllerStatus.WorkingStatus)statusRaw[1];
+
+            if (chambers.Contains(chamber))
+                return ChamberControllerStatus.WorkingStatus.NoOperation;
+            
+            return ChamberControllerStatus.WorkingStatus.Off;
         }
 
         private void WriteActuators(byte id, ushort[] actuators)

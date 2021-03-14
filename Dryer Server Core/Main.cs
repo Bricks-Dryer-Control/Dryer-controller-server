@@ -46,7 +46,7 @@ namespace Dryer_Server.Core
             var chambers = configurationPersistance.GetChamberConfigurations();
             var ids = chambers.Select(c => c.Id).ToList();
 
-            var lastValues = Task.Run(() => hisctoricalPersistance.GetLastValues(ids));
+            var lastValuesTask = Task.Run(() => hisctoricalPersistance.GetLastValues(ids));
             var initWents = Wents.Select(_ => new AdditionalStatus());
             var initRoofs = Roofs.Select(_ => (Roof: new AdditionalStatus(), Through: new AdditionalStatus()));
 
@@ -72,7 +72,17 @@ namespace Dryer_Server.Core
                 controllersCommunicator.Register(chamberSettings, true, chamber);
                 Chambers.Add(chamberSettings.Id, chamber);
             }
-            await ui.InitializationFinishedAsync(await lastValues, initWents, initRoofs);
+            
+            var lastValues = await lastValuesTask;
+            foreach (var v in lastValues)
+            {
+                var chamber = Chambers[v.id];
+                chamber.Sets.InFlow = v.status.InFlowSet;
+                chamber.Sets.OutFlow = v.status.OutFlowSet;
+                chamber.Sets.ThroughFlow = v.status.ThroughFlowSet;
+            }
+
+            await ui.InitializationFinishedAsync(lastValues, initWents, initRoofs);
         }
 
         public void Start()
@@ -108,18 +118,31 @@ namespace Dryer_Server.Core
             actuators[config.InFlowActuatorNo - 1] = inFlow;
             actuators[config.OutFlowActuatorNo - 1] = outFlow;
             actuators[config.ThroughFlowActuatorNo - 1] = throughFlow;
+            var chamber = Chambers[no];
+            chamber.Sets.InFlow = inFlow;
+            chamber.Sets.OutFlow = outFlow;
+            chamber.Sets.ThroughFlow = throughFlow;
             controllersCommunicator.SendActuators(no, actuators[0], actuators[1], actuators[2]);
         }
 
         public void ChangeWent(int no, int value)
         {
+            Chambers[no].Sets.Special = value;
             controllersCommunicator.SendSpecial(Wents[no], value);
         }
 
         public void ChangeRoof(int no, bool isRoof)
         {
-            controllersCommunicator.SendSpecial(Roofs[no].RoofNo, isRoof ? 480 : 0);
-            controllersCommunicator.SendSpecial(Roofs[no].ThroughNo, isRoof ? 0 : 480);
+            var roofNo = Roofs[no].RoofNo;
+            var throughNo = Roofs[no].ThroughNo;
+            var roofSet = isRoof ? 480 : 0;
+            var throughSet = isRoof ? 0 : 480;
+
+            Chambers[roofNo].Sets.Special = roofSet;
+            Chambers[throughNo].Sets.Special = throughSet;
+
+            controllersCommunicator.SendSpecial(roofNo, roofSet);
+            controllersCommunicator.SendSpecial(throughNo, throughSet);
         }
 
         public void StopAll()

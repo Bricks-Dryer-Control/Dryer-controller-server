@@ -18,9 +18,5 @@ namespace Dryer_Server.Interfaces
         public int Current2 { get; set; }
         public int Current3 { get; set; }        
         public int Current4 { get; set; }
-        public int Setted1 { get; set; }
-        public int Setted2 { get; set; }
-        public int Setted3 { get; set; }
-        public int Setted4 { get; set; }
     }
 }

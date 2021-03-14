@@ -38,6 +38,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
             {
                 throw new NotImplementedException();
             }
+
+            internal int? GetPosition(byte id)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Dryer_Server.Core
         {
             private int Id => Configuration.Id;
             private readonly Main parrent;
+            public CahmberValues Sets { get; } = new CahmberValues();
             public ChamberConfiguration Configuration { get; }
             public AdditionalConfig AdditionalConfig { get; }
 
@@ -76,7 +77,7 @@ namespace Dryer_Server.Core
             {
                 try
                 {
-                    parrent.ui.WentChanged(no, status.Current4, status.Setted4, status.QueuePosition, GetStatus(status));
+                    parrent.ui.WentChanged(no, status.Current4, Sets.Special, status.QueuePosition, GetStatus(status));
                 }
                 catch (Exception e)
                 {
@@ -88,7 +89,7 @@ namespace Dryer_Server.Core
             {
                 try
                 {
-                    parrent.ui.RoofThroughChanged(no, status.Current4, status.Setted4, status.QueuePosition, GetStatus(status));
+                    parrent.ui.RoofThroughChanged(no, status.Current4, Sets.Special, status.QueuePosition, GetStatus(status));
                 }
                 catch (Exception e)
                 {
@@ -100,7 +101,7 @@ namespace Dryer_Server.Core
             {
                 try
                 {
-                    parrent.ui.RoofRoofChanged(no, status.Current4, status.Setted4, status.QueuePosition, GetStatus(status));
+                    parrent.ui.RoofRoofChanged(no, status.Current4, Sets.Special, status.QueuePosition, GetStatus(status));
                 }
                 catch (Exception e)
                 {
@@ -150,7 +151,6 @@ namespace Dryer_Server.Core
             private ChamberConvertedStatus ConvertStatus(ChamberControllerStatus v)
             {
                 var positions = new int[] { v.Current1, v.Current2, v.Current3 };
-                var sets = new int[] { v.Setted1, v.Setted2, v.Setted3 };
 
                 return new ChamberConvertedStatus
                 {
@@ -160,9 +160,9 @@ namespace Dryer_Server.Core
                     InFlowPosition = positions[Configuration.InFlowActuatorNo - 1],
                     OutFlowPosition = positions[Configuration.OutFlowActuatorNo - 1],
                     ThroughFlowPosition = positions[Configuration.ThroughFlowActuatorNo - 1],
-                    InFlowSet = sets[Configuration.InFlowActuatorNo - 1],
-                    OutFlowSet = sets[Configuration.OutFlowActuatorNo - 1],
-                    ThroughFlowSet = sets[Configuration.ThroughFlowActuatorNo - 1],
+                    InFlowSet = Sets.InFlow,
+                    OutFlowSet = Sets.OutFlow,
+                    ThroughFlowSet = Sets.ThroughFlow,
                 };
             }
         }
