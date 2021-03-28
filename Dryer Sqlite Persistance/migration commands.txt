@@ -1,0 +1,3 @@
+
+dotnet ef migrations add MIGRATION_NAME --context NAMEOFContext --output-dir Migrations/NAMEOF
+dotnet ef database update -c NAMEOFContext

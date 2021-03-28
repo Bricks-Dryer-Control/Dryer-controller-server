@@ -5,16 +5,19 @@ using Dryer_Server.Persistance.Model.Historical;
 using Dryer_Server.Persistance.Model.Settings;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Dryer_Server.Persistance.Model.AutoControl;
 
 namespace Dryer_Server.Persistance
 {
-    public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, IDryerConfigurationPersistance
+    public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, IDryerConfigurationPersistance, IAutoControlPersistance
     {
         readonly DbContextOptions<SettingsContext> settingsCtxOptions;
         readonly DbContextOptions<HistoricalContext> historicalCtxOptions;
+        readonly DbContextOptions<AutoControlContext> autocontrolCtxOptions;
 
         HistoricalContext GetHistoricalCtx() => new HistoricalContext(historicalCtxOptions);
         SettingsContext GetSettingsCtx() => new SettingsContext(settingsCtxOptions);
+        AutoControlContext GetAutoControlCtx() => new AutoControlContext(autocontrolCtxOptions);
 
         public SqlitePersistanceManager()
         {
@@ -27,6 +30,11 @@ namespace Dryer_Server.Persistance
             var historicalConnectionString = Startup.GetHistoricalConnectionString();
             historicalBuilder.UseSqlite(historicalConnectionString); 
             historicalCtxOptions = historicalBuilder.Options;
+
+            var autocontrolBuilder = new DbContextOptionsBuilder<AutoControlContext>();
+            var autocontrolConnectionString = Startup.GetAutoControlConnectionString();
+            autocontrolBuilder.UseSqlite(autocontrolConnectionString); 
+            autocontrolCtxOptions = autocontrolBuilder.Options;
         }
 
         public IEnumerable<IChamberSensorHistoricValue> GetSensorsHistory(int id, DateTime startUtc, DateTime finishUtc)
@@ -92,6 +100,35 @@ namespace Dryer_Server.Persistance
                     .FirstOrDefault();
                 yield return (id, status, sensors);
             }
+        }
+
+        public IEnumerable<string> GetAutoControls()
+        {
+            using var ctx = GetAutoControlCtx();
+            return ctx.Definitions
+                .Where(d => !d.Deleted)
+                .Select(d => d.Name)
+                .Distinct();
+        }
+
+        void IAutoControlPersistance.Save(AutoControl autoControl) => SaveAutoControl(autoControl);
+        public void SaveAutoControl(AutoControl autoControl)
+        {
+            using var ctx = GetAutoControlCtx();
+            ctx.Definitions.Add(new DbAutoControl(autoControl));
+            ctx.SaveChanges();
+        }
+
+        AutoControl IAutoControlPersistance.Load(string name) => LoadAutoControl(name);
+        public AutoControl LoadAutoControl(string name)
+        {
+            using var ctx = GetAutoControlCtx();
+            return ctx.Definitions
+                .Include(d => d.Sets)
+                .Where(d => !d.Deleted && d.Name == name)
+                .OrderByDescending(d => d.Id)
+                .First()
+                .ToAutoControl();
         }
 
         public void Dispose()
