@@ -47,7 +47,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             
             foreach (var d in data)
             {
-                int pos = d ^ result;
+                var pos = (byte)(d ^ result);
                 result >>= 8;
                 result ^= CrcTable[pos];
             }

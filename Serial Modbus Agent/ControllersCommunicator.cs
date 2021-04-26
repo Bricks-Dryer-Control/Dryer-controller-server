@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,10 +24,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
         List<Chamber> chambers = new List<Chamber>();
         List<Chamber> inMotion = new List<Chamber>();
         CancellationTokenSource stoper = new();
+        SerialPort sp;
 
         public ControllersCommunicator(string port, int baud = 9600, int dataBits = 8, char parity = 'N', int stopBits = 1)
         {
-            var sp = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
+            sp = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
             var adapter = new SerialPortAdapter(sp);
             var factory = new ModbusFactory();
             rtu = factory.CreateRtuMaster(adapter);
@@ -62,6 +64,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         public void Start()
         {
             chambers.Sort((x, y) => x.Id.CompareTo(y.Id));
+            sp.Open();
             Task.Run(Worker);
         }
 
@@ -162,6 +165,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
         }
+        
         private void WriteStop(byte id)
         {
             try
@@ -177,6 +181,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         public void Stop()
         {
             stoper.Cancel();
+            sp.Close();
         }
 
         public void StopAllActuators()

@@ -44,7 +44,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
 
             stoper = new CancellationTokenSource();
             serialPort.DataReceived += SerialPort_DataReceived;
-            //serialPort.Open();
+            serialPort.Open();
         }
 
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)

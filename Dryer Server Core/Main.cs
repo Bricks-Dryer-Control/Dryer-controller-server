@@ -34,11 +34,11 @@ namespace Dryer_Server.Core
         public Main(IUiInterface ui)
         {
             this.ui = ui;
-            modbusListener = new SerialModbusChamberListener("COM1");
+            modbusListener = new SerialModbusChamberListener("COM10");
             var persistance = new SqlitePersistanceManager();
             configurationPersistance = persistance;
             hisctoricalPersistance = persistance;
-            controllersCommunicator = new ControllersCommunicator("COM3");
+            controllersCommunicator = new ControllersCommunicator("COM12");
         }
 
         public async Task InitializeAsync()
@@ -77,9 +77,12 @@ namespace Dryer_Server.Core
             foreach (var v in lastValues)
             {
                 var chamber = Chambers[v.id];
-                chamber.Sets.InFlow = v.status.InFlowSet;
-                chamber.Sets.OutFlow = v.status.OutFlowSet;
-                chamber.Sets.ThroughFlow = v.status.ThroughFlowSet;
+                if (v.status != null) 
+                {
+                    chamber.Sets.InFlow = v.status.InFlowSet;
+                    chamber.Sets.OutFlow = v.status.OutFlowSet;
+                    chamber.Sets.ThroughFlow = v.status.ThroughFlowSet;
+                }
             }
 
             await ui.InitializationFinishedAsync(lastValues, initWents, initRoofs);
