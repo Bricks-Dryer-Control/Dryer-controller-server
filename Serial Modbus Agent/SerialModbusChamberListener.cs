@@ -16,7 +16,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
         private ModbusBuffer modbusBuffer;
         private Dictionary<int, List<IValueReceiver<ChamberSensors>>> chambers = new();
 
-        private const int msgSize = 25;
+        private const int requestSize = 8;
+        private const int msgSize = 23;
 
         public SerialModbusChamberListener(string port, int baud = 9600, int dataBits = 8, char parity = 'N', int stopBits = 2)
         {
@@ -67,7 +68,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             if (chambers.TryGetValue(slaveId, out var receivers))
             {
                 var buff = new byte[4];
-                for (int i = 0; i < 5; i++) responseEnum.MoveNext();
+                for (int i = 0; i < requestSize + 2; i++) responseEnum.MoveNext();
                 
                 responseEnum.MoveNext();
                 buff[1] = responseEnum.Current;
@@ -104,12 +105,16 @@ namespace Dryer_Server.Serial_Modbus_Agent
         }
 
         private readonly static byte[] readTempHummStartSequence = new byte[] { 0x03, 0x01, 0x00, 0x00, 0x05 };
+        private readonly static byte[] zeros = new byte[] { 0x00, 0x00 };
+
         public static bool DetectReadTempHumm(IEnumerable<byte> data)
         {
-            if (!readTempHummStartSequence.SequenceEqual(data.Skip(1).Take(5)))
-                return false;
-
-            return CrcModbus.Get(data.Take(msgSize - 2)).SequenceEqual(data.Skip(msgSize - 2));
+            return readTempHummStartSequence.SequenceEqual(data.Skip(1).Take(5))
+                && data.Skip(msgSize - 4).Take(2).SequenceEqual(zeros)
+                && CrcModbus.Get(data.Take(requestSize - 2)).SequenceEqual(data.Skip(requestSize - 2).Take(2))
+                && data.Take(2).SequenceEqual(data.Skip(requestSize).Take(2))
+                && data.ElementAt(requestSize + 2) == 0x0A
+                && CrcModbus.Get(data.Skip(requestSize).Take(13)).SequenceEqual(data.Skip(msgSize - 2));
         }
 
         private bool _disposed = false;

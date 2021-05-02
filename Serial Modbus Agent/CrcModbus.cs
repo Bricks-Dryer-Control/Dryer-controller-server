@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Dryer_Server.Serial_Modbus_Agent
 {
-    internal static class CrcModbus
+    public static class CrcModbus
     {
         static readonly UInt16[] CrcTable =
         {
