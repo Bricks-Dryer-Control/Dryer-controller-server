@@ -14,5 +14,6 @@ namespace Dryer_Server.Interfaces
         void ChangeRoof(int no, bool isRoof);
         void StopAll();
         CommonStatus GetCommon();
+        void ChangeChamberReading(int no, bool value);
     }
 }

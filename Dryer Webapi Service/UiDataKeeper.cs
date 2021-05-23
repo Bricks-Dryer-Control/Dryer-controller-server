@@ -30,6 +30,7 @@ namespace Dryer_Server.WebApi
             InFlowSet = 0,
             OutFlowSet = 0,
             ThroughFlowSet = 0,
+            IsListening = false,
         };
 
         private static ChamberSensors DefaultSensors { get; } = new()
@@ -49,6 +50,13 @@ namespace Dryer_Server.WebApi
         public void StatusChanged(int id, DateTime timestampUtc, ChamberConvertedStatus values)
         {
             var chamber = chambers[id -1];
+
+            if (values.Working == ChamberConvertedStatus.WorkingStatus.error) 
+            {
+                chamber.Status.Working = ChamberConvertedStatus.WorkingStatus.error;
+                return;
+            }
+
             chamber.ActualActuators = new ChamberValues
             {
                 InFlow = values.InFlowPosition,
@@ -67,6 +75,12 @@ namespace Dryer_Server.WebApi
                 QueuePosition = values.QueuePosition,
                 Working = values.Working,
             };
+        }
+        
+        public void ActiveChanged(int id, bool value)
+        {
+            var chamber = chambers[id -1];
+            chamber.Status.IsActive = value;
         }
 
         public void WentChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status)

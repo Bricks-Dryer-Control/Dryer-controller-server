@@ -34,18 +34,21 @@ namespace Dryer_Server.WebApi.Controllers
             return data.GetChamber(no);
         }
 
-        public record PostRequest
+        [HttpPost]
+        [Route("{no}/Set")]
+        public ChamberInfo Set(int no, ChamberValues newSets)
         {
-            public bool IsOn {get;set;}
-            public ChamberValues NewSets {get;set;}
+            controller.ChangeActuators(no, newSets.InFlow, newSets.OutFlow, newSets.ThroughFlow);
+            return data.GetChamber(no);
         }
 
         [HttpPost]
-        [Route("{no}")]
-        public ChamberInfo Post(int no, PostRequest body)
+        [Route("{no}/Turn")]
+        public ChamberInfo Turn(int no, [FromBody] bool value)
         {
-            controller.ChangeActuators(no, body.NewSets.InFlow, body.NewSets.OutFlow, body.NewSets.ThroughFlow);
+            controller.ChangeChamberReading(no, value);
             return data.GetChamber(no);
         }
+
     }
 }

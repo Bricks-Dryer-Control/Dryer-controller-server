@@ -12,7 +12,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
 {
     public partial class ControllersCommunicator : IModbusControllerCommunicator
     {
-        private const ushort WriteStartAddress = 4597;
+        private const ushort StartAddress = 4597;
+        private const ushort ReadPositionsStartAddress = 4599;
         private const ushort WriteActuatorsAddress = 4603;
         private const ushort WriteSpecialAddress = 4606;
         private static ushort[] WriteActuatorsStartCommand { get; } = new ushort[] { 1, 0 };
@@ -30,8 +31,14 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             sp = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
             var adapter = new SerialPortAdapter(sp);
+            adapter.ReadTimeout = 150;
+            adapter.WriteTimeout = 150;
             var factory = new ModbusFactory();
             rtu = factory.CreateRtuMaster(adapter);
+            rtu.Transport.Retries = 1;
+            rtu.Transport.ReadTimeout = 150;
+            rtu.Transport.WriteTimeout = 150;
+            rtu.Transport.WaitToRetryMilliseconds = 0;
             queue = new SendQueue(this);
         }
 
@@ -99,8 +106,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             try
             {
-                var statusRaw = rtu.ReadHoldingRegisters(chamber.Id, 4597, 2);
-                var positionsRaw = rtu.ReadHoldingRegisters(chamber.Id, 4599, 4);
+                var statusRaw = rtu.ReadHoldingRegisters(chamber.Id, StartAddress, 2);
+                var positionsRaw = rtu.ReadHoldingRegisters(chamber.Id, ReadPositionsStartAddress, 4);
                 
                 var status = new ChamberControllerStatus
                 {
@@ -115,12 +122,16 @@ namespace Dryer_Server.Serial_Modbus_Agent
 
                 Task.Run(() => chamber.Receiver.ValueReceived(status));
                 
-                if (status.workingStatus == ChamberControllerStatus.WorkingStatus.Off && status.QueuePosition == null)
+                if (!chamber.Active && status.QueuePosition == null)
                     inMotion.Remove(chamber);
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e.ToString());
+                var errorStatus = new ChamberControllerStatus {
+                    workingStatus = ChamberControllerStatus.WorkingStatus.Error,
+                };
+                Task.Run(() => chamber.Receiver.ValueReceived(errorStatus));
+                System.Diagnostics.Debug.WriteLine($"Read Error on {chamber.Id}:\n{e.ToString()}");
             }
         }
 
@@ -134,7 +145,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             if (statusRaw[1] != 0)
                 return (ChamberControllerStatus.WorkingStatus)statusRaw[1];
 
-            if (chambers.Contains(chamber))
+            if (chamber.Active)
                 return ChamberControllerStatus.WorkingStatus.NoOperation;
             
             return ChamberControllerStatus.WorkingStatus.Off;
@@ -145,7 +156,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             try
             {
                 rtu.WriteMultipleRegisters(id, WriteActuatorsAddress, actuators);
-                rtu.WriteMultipleRegisters(id, WriteStartAddress, WriteActuatorsStartCommand);
+                rtu.WriteMultipleRegisters(id, StartAddress, WriteActuatorsStartCommand);
             }
             catch (Exception e)
             {
@@ -158,7 +169,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             try
             {
                 rtu.WriteSingleRegister(id, WriteSpecialAddress, value);
-                rtu.WriteMultipleRegisters(id, WriteStartAddress, WriteActuatorsStartCommand);
+                rtu.WriteMultipleRegisters(id, StartAddress, WriteActuatorsStartCommand);
             }
             catch (Exception e)
             {
@@ -170,7 +181,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             try
             {
-                rtu.WriteMultipleRegisters(id, WriteStartAddress, WriteStopCommand);
+                rtu.WriteMultipleRegisters(id, StartAddress, WriteStopCommand);
             }
             catch (Exception e)
             {
@@ -194,6 +205,16 @@ namespace Dryer_Server.Serial_Modbus_Agent
         public void Dispose()
         {
             rtu?.Dispose();
+        }
+
+        public bool isChamberListen(int id)
+        {
+            return chambers[id - 1].Active;
+        }
+
+        public void setChamberListen(int id, bool value)
+        {
+            chambers[id - 1].Active = value;
         }
     }
 }

@@ -8,7 +8,8 @@ namespace Dryer_Server.Interfaces
             NoOperation = 0,
             DirectionDetected = 1,
             ActuatorStarted = 2,
-            ActuatorFinished = 3
+            ActuatorFinished = 3,
+            Error = 4
         }
 
         public int ActualActuator { get; set; }

@@ -10,5 +10,7 @@ namespace Dryer_Server.Interfaces
         int SendActuators(int id, int actuator1, int actuator2, int actuator3);
         int SendSpecial(int id, int value);
         void StopAllActuators();
+        bool isChamberListen(int id);
+        void setChamberListen(int id, bool value);
     }
 }

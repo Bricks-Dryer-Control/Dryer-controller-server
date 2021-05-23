@@ -4,9 +4,9 @@ namespace Dryer_Server.Interfaces
     {
         public enum WorkingStatus
         {
-            off, waiting, queued, working, addon
-        };
-
+            off, waiting, queued, working, addon,
+            error
+        }
         public WorkingStatus Working { get; set; }
         public bool IsAuto { get; set; }
         public int? QueuePosition { get; set; }
@@ -16,5 +16,6 @@ namespace Dryer_Server.Interfaces
         public int InFlowSet { get; set; }
         public int OutFlowSet { get; set; }
         public int ThroughFlowSet { get; set; }
+        public bool IsListening { get; set; }
     }
 }

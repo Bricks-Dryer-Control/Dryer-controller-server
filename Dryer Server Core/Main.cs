@@ -46,7 +46,7 @@ namespace Dryer_Server.Core
             var chambers = configurationPersistance.GetChamberConfigurations();
             var ids = chambers.Select(c => c.Id).ToList();
 
-            var lastValuesTask = Task.Run(() => hisctoricalPersistance.GetLastValues(ids));
+            var lastValues = hisctoricalPersistance.GetLastValues(ids);
             var initWents = Wents.Select(_ => new AdditionalStatus());
             var initRoofs = Roofs.Select(_ => (Roof: new AdditionalStatus(), Through: new AdditionalStatus()));
 
@@ -69,11 +69,13 @@ namespace Dryer_Server.Core
                 var chamber = new Chamber(chamberSettings, this, aditional);
                 if (chamberSettings.SensorId.HasValue)
                     modbusListener.Add(chamberSettings.SensorId.Value, chamber);
-                controllersCommunicator.Register(chamberSettings, true, chamber);
+
+                var lastChamberValues = lastValues.FirstOrDefault(lv => lv.id == chamberSettings.Id);
+                var isActive = lastChamberValues.status?.IsListening ?? false;
+                controllersCommunicator.Register(chamberSettings, isActive, chamber);
                 Chambers.Add(chamberSettings.Id, chamber);
             }
             
-            var lastValues = await lastValuesTask;
             foreach (var v in lastValues)
             {
                 var chamber = Chambers[v.id];
@@ -162,6 +164,11 @@ namespace Dryer_Server.Core
                 TurnedOn = 0,
                 WorkingNow = 0,
             };
+        }
+
+        public void ChangeChamberReading(int no, bool value)
+        {
+            Chambers[no].Listen = value;
         }
 
         record RoofConfig

@@ -14,6 +14,11 @@ namespace Dryer_Server.Core
             public CahmberValues Sets { get; } = new CahmberValues();
             public ChamberConfiguration Configuration { get; }
             public AdditionalConfig AdditionalConfig { get; }
+            public Boolean Listen 
+            { 
+                get => isListen(Id); 
+                set => setListen(Id, value);
+            }
 
             public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
             {
@@ -57,20 +62,31 @@ namespace Dryer_Server.Core
 
             public void ValueReceived(ChamberControllerStatus v)
             {
-                var exs = new List<Exception>();
-                var status = ConvertStatus(v);
 
-                TrySave(exs, status);
-                TrySendToUi(exs, status);
+                if (v.workingStatus != ChamberControllerStatus.WorkingStatus.Error)
+                {
+                    var exs = new List<Exception>();
+                    var status = ConvertStatus(v);
 
-                if (AdditionalConfig?.RoofRoof != null)
-                    TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v);
-                if (AdditionalConfig?.RoofThrough != null)
-                    TrySendRoofThroughToUi(exs, AdditionalConfig.RoofThrough.Value, v);
-                if (AdditionalConfig?.Went != null)
-                    TrySendWentToUi(exs, AdditionalConfig.Went.Value, v);
+                    TrySave(exs, status);
+                    TrySendToUi(exs, status);
 
-                parrent.HandleExceptions(exs);
+                    if (AdditionalConfig?.RoofRoof != null)
+                        TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v);
+                    if (AdditionalConfig?.RoofThrough != null)
+                        TrySendRoofThroughToUi(exs, AdditionalConfig.RoofThrough.Value, v);
+                    if (AdditionalConfig?.Went != null)
+                        TrySendWentToUi(exs, AdditionalConfig.Went.Value, v);
+
+                    parrent.HandleExceptions(exs);
+                }
+                else 
+                {
+                    parrent.ui.StatusChanged(Id, DateTime.UtcNow, new ChamberConvertedStatus
+                    {
+                        Working = WorkingStatus.error,
+                    });
+                }
             }
 
             private void TrySendWentToUi(List<Exception> exs, int no, ChamberControllerStatus status)
@@ -164,6 +180,17 @@ namespace Dryer_Server.Core
                     OutFlowSet = Sets.OutFlow,
                     ThroughFlowSet = Sets.ThroughFlow,
                 };
+            }
+
+            private void setListen(int id, bool value)
+            {
+                parrent.controllersCommunicator.setChamberListen(id, value);
+                parrent.ui.ActiveChanged(id, value);
+            }
+
+            private bool isListen(int id)
+            {
+                return parrent.controllersCommunicator.isChamberListen(id);
             }
         }
     }

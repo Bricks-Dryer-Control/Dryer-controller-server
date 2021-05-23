@@ -9,5 +9,6 @@ namespace Dryer_Server.WebApi.Model
         public ChamberConvertedStatus.WorkingStatus Working { get; set; }
         public bool IsAuto { get; set; }
         public int? QueuePosition { get; set; }
+        public bool IsActive { get; set; }
     }
 }

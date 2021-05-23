@@ -32,6 +32,7 @@ namespace Dryer_Server.WebApi.Model
                 IsAuto = false,
                 QueuePosition = status.QueuePosition,
                 Working = status.Working,
+                IsActive = status.IsListening,
             };
         }
 
