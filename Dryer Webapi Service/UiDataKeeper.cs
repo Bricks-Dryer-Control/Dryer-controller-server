@@ -50,6 +50,7 @@ namespace Dryer_Server.WebApi
         public void StatusChanged(int id, DateTime timestampUtc, ChamberConvertedStatus values)
         {
             var chamber = chambers[id -1];
+            chamber.ReadingTime = timestampUtc;
 
             if (values.Working == ChamberConvertedStatus.WorkingStatus.error) 
             {
@@ -74,6 +75,7 @@ namespace Dryer_Server.WebApi
                 IsAuto = false,
                 QueuePosition = values.QueuePosition,
                 Working = values.Working,
+                IsActive = values.IsListening,
             };
         }
         
@@ -81,6 +83,7 @@ namespace Dryer_Server.WebApi
         {
             var chamber = chambers[id -1];
             chamber.Status.IsActive = value;
+            chamber.ReadingTime = DateTime.UtcNow;
         }
 
         public void WentChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status)

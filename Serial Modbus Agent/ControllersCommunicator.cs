@@ -132,6 +132,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 };
                 Task.Run(() => chamber.Receiver.ValueReceived(errorStatus));
                 System.Diagnostics.Debug.WriteLine($"Read Error on {chamber.Id}:\n{e.ToString()}");
+                Task.Delay(200).Wait();
             }
         }
 

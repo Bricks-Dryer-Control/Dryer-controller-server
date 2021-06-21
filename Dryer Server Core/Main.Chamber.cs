@@ -179,6 +179,7 @@ namespace Dryer_Server.Core
                     InFlowSet = Sets.InFlow,
                     OutFlowSet = Sets.OutFlow,
                     ThroughFlowSet = Sets.ThroughFlow,
+                    IsListening = Listen,
                 };
             }
 
