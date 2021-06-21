@@ -21,12 +21,10 @@ namespace Dryer_Server.Serial_Modbus_Agent
 
         public SerialModbusChamberListener(string port, int baud = 9600, int dataBits = 8, char parity = 'N', int stopBits = 2)
         {
-            this.serialPort = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
-            modbusBuffer = new ModbusBuffer(msgSize, DetectReadTempHumm); 
-        }
-
-        protected SerialModbusChamberListener()
-        {
+            if (!string.IsNullOrEmpty(port))
+                this.serialPort = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
+            else
+                this.serialPort = null;
             modbusBuffer = new ModbusBuffer(msgSize, DetectReadTempHumm); 
         }
 
@@ -44,8 +42,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 Stop();
 
             stoper = new CancellationTokenSource();
-            serialPort.DataReceived += SerialPort_DataReceived;
-            serialPort.Open();
+            if (serialPort != null)
+            {
+                serialPort.DataReceived += SerialPort_DataReceived;
+                serialPort.Open();
+            }
         }
 
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -101,7 +102,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             stoper.Cancel();
             listenerTask.Wait();
-            serialPort.Close();
+            serialPort?.Close();
         }
 
         private readonly static byte[] readTempHummStartSequence = new byte[] { 0x03, 0x01, 0x00, 0x00, 0x05 };
