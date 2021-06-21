@@ -8,6 +8,12 @@ namespace Dryer_Server.Persistance.Model.Settings
         public SettingsContext(DbContextOptions<SettingsContext> options) : base(options) { } 
 
         public virtual DbSet<ChamberSetting> Chamber { get; set; } 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ChamberSetting>()
+                .HasKey(c => new { c.Id, c.CreationTimeUtc });
+        }
     }
 
     public class DesignTimeSettingsContextFactory : IDesignTimeDbContextFactory<SettingsContext> 

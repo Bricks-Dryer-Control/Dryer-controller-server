@@ -1,13 +1,12 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Dryer_Server.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dryer_Server.Persistance.Model.Historical
 {
-    [Keyless]
     [Table("Sensor")]
-    [Index("ChamberId", "TimestampUtc", IsUnique = true)]
     public record ChamberSensorValue: ChamberSensors, IChamberSensorHistoricValue
     {        
         public int ChamberId { get; set; }

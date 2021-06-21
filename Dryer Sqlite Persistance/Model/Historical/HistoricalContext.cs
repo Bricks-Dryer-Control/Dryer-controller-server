@@ -10,6 +10,15 @@ namespace Dryer_Server.Persistance.Model.Historical
 
         public virtual DbSet<ChamberSensorValue> Sensors { get; set; } 
         public virtual DbSet<ChamberConvertedState> States { get; set; } 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ChamberSensorValue>()
+                .HasKey(c => new { c.ChamberId, c.TimestampUtc });
+                
+            modelBuilder.Entity<ChamberConvertedState>()
+                .HasKey(c => new { c.ChamberId, c.TimestampUtc });
+        }
     }
 
     public class DesignTimeHistoricalContextFactory : IDesignTimeDbContextFactory<HistoricalContext> 

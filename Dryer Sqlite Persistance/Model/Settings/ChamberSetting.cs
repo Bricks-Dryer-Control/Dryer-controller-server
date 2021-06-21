@@ -5,9 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dryer_Server.Persistance.Model.Settings
 {
-    [Keyless]
     [Table("Chamber")]
-    [Index("Id", "CreationTimeUtc", IsUnique = true)]
     public record ChamberSetting : ChamberConfiguration
     {
         public DateTime CreationTimeUtc { get; set; }
