@@ -131,7 +131,16 @@ namespace Dryer_Server.Serial_Modbus_Agent
                     workingStatus = ChamberControllerStatus.WorkingStatus.Error,
                 };
                 Task.Run(() => chamber.Receiver.ValueReceived(errorStatus));
-                System.Diagnostics.Debug.WriteLine($"Read Error on {chamber.Id}:\n{e.ToString()}");
+                System.Diagnostics.Debug.WriteLine($"Read Error on chamber {chamber.Id}:\n{e.ToString()}");
+                if (!sp.IsOpen)
+                {
+                    try
+                    {
+                        sp.Open();
+                    }
+                    catch (Exception)
+                    {}
+                }
                 Task.Delay(200).Wait();
             }
         }
@@ -170,7 +179,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             try
             {
                 rtu.WriteSingleRegister(id, WriteSpecialAddress, value);
-                rtu.WriteMultipleRegisters(id, StartAddress, WriteActuatorsStartCommand);
+                rtu.WriteMultipleRegisters(id, StartAddress, WriteSpecialStartCommand);
             }
             catch (Exception e)
             {
