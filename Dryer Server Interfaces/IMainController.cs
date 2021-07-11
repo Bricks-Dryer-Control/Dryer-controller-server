@@ -15,5 +15,6 @@ namespace Dryer_Server.Interfaces
         void StopAll();
         CommonStatus GetCommon();
         void ChangeChamberReading(int no, bool value);
+        HistoryResponse GetHistory(int no, DateTime from, DateTime to);
     }
 }

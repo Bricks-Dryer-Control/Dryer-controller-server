@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dryer_Server.Persistance.Model.Historical
 {
     [Table("State")]
-    public record ChamberConvertedState: ChamberConvertedStatus
+    public record ChamberConvertedState: ChamberConvertedStatus, IChamberStatusHistoricValue
     {
 
         public int ChamberId { get; set; }
@@ -21,5 +21,11 @@ namespace Dryer_Server.Persistance.Model.Historical
             ChamberId = id;
             TimestampUtc = DateTime.UtcNow;
         }
+
+        [NotMapped]
+        public DateTime TimeUtc => TimestampUtc;
+
+        [NotMapped]
+        public ChamberConvertedStatus Value => this;
     }
 }

@@ -49,6 +49,5 @@ namespace Dryer_Server.WebApi.Controllers
             controller.ChangeChamberReading(no, value);
             return data.GetChamber(no);
         }
-
     }
 }

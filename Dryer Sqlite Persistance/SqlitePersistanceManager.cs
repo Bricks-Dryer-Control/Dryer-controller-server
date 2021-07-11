@@ -49,6 +49,18 @@ namespace Dryer_Server.Persistance
                 .ToList();
         }
 
+        public IEnumerable<IChamberStatusHistoricValue> GetStatusHistory(int id, DateTime startUtc, DateTime finishUtc)
+        {
+            using var ctx = GetHistoricalCtx();
+            
+            return ctx.States
+                .Where(s => s.ChamberId == id)
+                .Where(s => s.TimestampUtc >= startUtc && s.TimestampUtc < finishUtc)
+                .OrderBy(s => s.TimestampUtc)
+                .Select(s => (IChamberStatusHistoricValue)s)
+                .ToList();
+        }
+
         public void Save(int id, ChamberConvertedStatus status)
         {
             using var ctx = GetHistoricalCtx();

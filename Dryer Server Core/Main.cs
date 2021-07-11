@@ -171,6 +171,18 @@ namespace Dryer_Server.Core
             Chambers[no].Listen = value;
         }
 
+        public HistoryResponse GetHistory(int no, DateTime from, DateTime to)
+        {
+            var sensorsHistory = hisctoricalPersistance.GetSensorsHistory(no, from, to);
+            var statusHistory = hisctoricalPersistance.GetStatusHistory(no, from, to);
+
+            return new HistoryResponse {
+                no = no,
+                sensors = sensorsHistory,
+                status = statusHistory,
+            };
+        }
+
         record RoofConfig
         {
             public int No { get; set; }
