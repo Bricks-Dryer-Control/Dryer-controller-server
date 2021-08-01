@@ -6,10 +6,13 @@ variables:
   OBJECTS_DIRECTORY: 'obj'
   PACKAGES_DIRECTORY: 'packages'
   SOURCE_CODE_PATH: '*/'
+  DEPLOY_FOLDER: 'C:\DryerController\Server'
+  SERVICE_NAME: 'DryerServer'
 
 stages:
   - test
   - build
+  - deploy
 
 cache:
   key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
@@ -22,6 +25,11 @@ cache:
 before_script:
   - 'dotnet restore --packages $PACKAGES_DIRECTORY'
 
+tests:
+  stage: test
+  script:
+    - 'dotnet test --no-restore'
+
 build:
   stage: build
   script:
@@ -30,7 +38,15 @@ build:
     paths:
       - bin
 
-tests:
-  stage: test
+deploy:
+  stage: deploy
   script:
-    - 'dotnet test --no-restore'
+    - Stop-Service -name "$env:SERVICE_NAME"
+    - 'Get-ChildItem -Path  "$env:DEPLOY_FOLDER" -Recurse -exclude *.db | Remove-Item -force'
+    - 'xcopy /y ".\bin" "$env:DEPLOY_FOLDER"'
+    - Start-Service -name "$env:SERVICE_NAME"
+  environment:
+    name: production
+  when: manual
+  dependencies:
+    - build
