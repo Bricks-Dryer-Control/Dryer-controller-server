@@ -1,4 +1,6 @@
-image: mcr.microsoft.com/dotnet/sdk:5.0
+default:
+  tags:
+    - windows
 
 variables:
   OBJECTS_DIRECTORY: 'obj'
@@ -23,7 +25,10 @@ before_script:
 build:
   stage: build
   script:
-    - 'dotnet build --no-restore'
+    - 'dotnet build --no-restore -c Release -o bin'
+  artifacts:
+    paths:
+      - bin
 
 tests:
   stage: test
