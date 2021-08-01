@@ -8,8 +8,8 @@ variables:
   SOURCE_CODE_PATH: '*/'
 
 stages:
-  - build
   - test
+  - build
 
 cache:
   key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
