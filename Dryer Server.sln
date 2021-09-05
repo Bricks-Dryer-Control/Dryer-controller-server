@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serial Modbus Agent Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Webapi Service", "Dryer Webapi Service\Dryer Webapi Service.csproj", "{969973B3-632E-442B-BA07-0AAD585F03DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Auto Control", "Dryer Auto Control\Dryer Auto Control.csproj", "{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,5 +116,17 @@ Global
 		{969973B3-632E-442B-BA07-0AAD585F03DB}.Release|x64.Build.0 = Release|Any CPU
 		{969973B3-632E-442B-BA07-0AAD585F03DB}.Release|x86.ActiveCfg = Release|Any CPU
 		{969973B3-632E-442B-BA07-0AAD585F03DB}.Release|x86.Build.0 = Release|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Debug|x64.Build.0 = Debug|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Debug|x86.Build.0 = Debug|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x64.ActiveCfg = Release|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x64.Build.0 = Release|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x86.ActiveCfg = Release|Any CPU
+		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
