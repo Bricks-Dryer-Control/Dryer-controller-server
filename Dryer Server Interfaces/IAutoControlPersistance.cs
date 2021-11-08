@@ -6,7 +6,10 @@ namespace Dryer_Server.Interfaces
     public interface IAutoControlPersistance: IDisposable
     {
         IEnumerable<string> GetAutoControls();
-        void Save(AutoControl autoControl);
+        void SaveDeactivateLatest(AutoControl autoControl);
         AutoControl Load(string name);
+        AutoControl GetControlWithItems(string name);
+        IEnumerable<AutoControl> GetControls();
+        void Delete(string name);
     }
 }

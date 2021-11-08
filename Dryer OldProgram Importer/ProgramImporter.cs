@@ -64,7 +64,7 @@ namespace Dryer_OldProgram_Importer
                         Sets = items,
                     };
 
-                    persister.Save(autoControl);
+                    persister.SaveDeactivateLatest(autoControl);
                 }
             }
         }

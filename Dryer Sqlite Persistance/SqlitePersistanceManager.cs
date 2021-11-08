@@ -9,7 +9,8 @@ using Dryer_Server.Persistance.Model.AutoControl;
 
 namespace Dryer_Server.Persistance
 {
-    public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, IDryerConfigurationPersistance, IAutoControlPersistance
+    public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, IDryerConfigurationPersistance,
+        IAutoControlPersistance
     {
         readonly DbContextOptions<SettingsContext> settingsCtxOptions;
         readonly DbContextOptions<HistoricalContext> historicalCtxOptions;
@@ -23,18 +24,28 @@ namespace Dryer_Server.Persistance
         {
             var settingsBuilder = new DbContextOptionsBuilder<SettingsContext>();
             var settingsConnectionString = Startup.GetSettingsConnectionString();
-            settingsBuilder.UseSqlite(settingsConnectionString); 
+            settingsBuilder.UseSqlite(settingsConnectionString);
             settingsCtxOptions = settingsBuilder.Options;
 
             var historicalBuilder = new DbContextOptionsBuilder<HistoricalContext>();
             var historicalConnectionString = Startup.GetHistoricalConnectionString();
-            historicalBuilder.UseSqlite(historicalConnectionString); 
+            historicalBuilder.UseSqlite(historicalConnectionString);
             historicalCtxOptions = historicalBuilder.Options;
 
             var autocontrolBuilder = new DbContextOptionsBuilder<AutoControlContext>();
             var autocontrolConnectionString = Startup.GetAutoControlConnectionString();
-            autocontrolBuilder.UseSqlite(autocontrolConnectionString); 
+            autocontrolBuilder.UseSqlite(autocontrolConnectionString);
             autocontrolCtxOptions = autocontrolBuilder.Options;
+        }
+
+        public SqlitePersistanceManager(DbContextOptions<AutoControlContext> autoControlContextOptions,
+            DbContextOptions<HistoricalContext> historicalContextOptions,
+            DbContextOptions<SettingsContext> settingsContextOptions
+            )
+        {
+            settingsCtxOptions = settingsContextOptions;
+            historicalCtxOptions = historicalContextOptions;
+            autocontrolCtxOptions = autoControlContextOptions;
         }
 
         public IEnumerable<IChamberSensorHistoricValue> GetSensorsHistory(int id, DateTime startUtc, DateTime finishUtc)
@@ -123,7 +134,11 @@ namespace Dryer_Server.Persistance
                 .Distinct();
         }
 
-        void IAutoControlPersistance.Save(AutoControl autoControl) => SaveAutoControl(autoControl);
+        void IAutoControlPersistance.SaveDeactivateLatest(AutoControl autoControl)
+        {
+            Deactivate(autoControl.Name);
+            SaveAutoControl(autoControl);
+        }
         public void SaveAutoControl(AutoControl autoControl)
         {
             using var ctx = GetAutoControlCtx();
@@ -146,6 +161,37 @@ namespace Dryer_Server.Persistance
         public void Dispose()
         {
             
+        }
+
+        AutoControl IAutoControlPersistance.GetControlWithItems(string name)
+        {
+            using var ctx = GetAutoControlCtx();
+            return ctx.Definitions.Include(d => d.Sets)
+                .Where(d => !d.Deleted && d.Name == name)
+                .Select(d => d.ToAutoControl()).Single();
+        }
+
+        IEnumerable<AutoControl> IAutoControlPersistance.GetControls()
+        {
+            using var ctx = GetAutoControlCtx();
+            ctx.Definitions.RemoveRange(ctx.Definitions);
+            return ctx.Definitions
+                  .Where(d => !d.Deleted)
+                  .OrderByDescending(d => d.Id)
+                  .Select(d => d.ToAutoControl()).ToList();
+        }
+
+        void IAutoControlPersistance.Delete(string name)
+        {
+            Deactivate(name);
+        }
+
+        private void Deactivate(string name)
+        {
+            using var ctx = GetAutoControlCtx();
+            foreach (var autoControl in ctx.Definitions.Where(d => !d.Deleted && d.Name == name))
+                autoControl.Deleted = true;
+            ctx.SaveChanges();
         }
     }
 }

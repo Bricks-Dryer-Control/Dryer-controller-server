@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\Dryer Auto Control\Dryer Auto Control.csproj" />
     <ProjectReference Include="..\Dryer Server Interfaces\Dryer Server Interfaces.csproj" />
     <ProjectReference Include="..\Serial Modbus Agent\Serial Modbus Agent.csproj" />
     <ProjectReference Include="..\Dryer Sqlite Persistance\Dryer Sqlite Persistance.csproj" />
