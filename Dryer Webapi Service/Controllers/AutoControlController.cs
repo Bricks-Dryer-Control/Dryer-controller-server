@@ -37,7 +37,7 @@ namespace Dryer_Server.WebApi.Controllers
         }
 
         [HttpPost]
-        public ObjectResult CreateAutoControl(AutoControl autoControl)
+        public ObjectResult CreateAutoControl([FromBody] AutoControl autoControl)
         {
             try
             {
@@ -55,10 +55,17 @@ namespace Dryer_Server.WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("start/{name}")]
-        public void StartAutoControl(string name)
+        [Route("start")]
+        public void StartAutoControl([FromBody] StartAutoControlRq rq)
         {
             throw new NotImplementedException();
+        }
+
+        public record StartAutoControlRq
+        {
+            string Name { get; set; }
+            int ChamberId { get; set; }
+            TimeSpan StartPoint { get; set; }
         }
 
     }
