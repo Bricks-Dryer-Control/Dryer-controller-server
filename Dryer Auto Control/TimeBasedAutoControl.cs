@@ -88,14 +88,4 @@ namespace Dryer_Server.AutomaticControl
             Timer.Dispose();
         }
     }
-
-    public interface IChamber 
-    {
-        bool IsAutoControl { get; }
-        bool IsQueued { get; }
-        int CurrentInFlow { get; }
-        int CurrentOutFlow { get; }
-        int CurrentThroughFlow { get; }
-        void AddToQueue();
-    }
 }

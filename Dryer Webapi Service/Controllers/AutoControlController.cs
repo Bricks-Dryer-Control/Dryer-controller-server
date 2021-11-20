@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dryer_Server.AutomaticControl;
 
 namespace Dryer_Server.WebApi.Controllers
 {
@@ -11,10 +12,12 @@ namespace Dryer_Server.WebApi.Controllers
     public class AutoControlController : Controller
     {
         private readonly IAutoControlPersistance persistence;
+        private readonly IMainController mainController;
 
-        public AutoControlController(IAutoControlPersistance persistence)
+        public AutoControlController(IAutoControlPersistance persistence, IMainController mainController)
         {
             this.persistence = persistence;
+            this.mainController = mainController;
         }
 
         [HttpGet]
@@ -56,16 +59,30 @@ namespace Dryer_Server.WebApi.Controllers
 
         [HttpPost]
         [Route("start")]
-        public void StartAutoControl([FromBody] StartAutoControlRq rq)
+        public ObjectResult StartAutoControl([FromBody] StartAutoControlRequestBody requestBody)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!mainController.TryGetChamber(requestBody.ChamberId, out var chamber))
+                {
+                    return BadRequest("No such chamber.");
+                }
+                var control = persistence.GetControlWithItems(requestBody.Name);
+                var autoControl = new TimeBasedAutoControl(requestBody.CheckingDelay, requestBody.StartPoint, control, chamber);
+                return Ok(null);
+            }
+            catch (Exception e)
+            {
+                return new ObjectResult(e.Message);
+            }
         }
 
-        public record StartAutoControlRq
+        public record StartAutoControlRequestBody
         {
-            string Name { get; set; }
-            int ChamberId { get; set; }
-            TimeSpan StartPoint { get; set; }
+            public string Name { get; set; }
+            public int ChamberId { get; set; }
+            public TimeSpan StartPoint { get; set; }
+            public TimeSpan CheckingDelay { get; set; }
         }
 
     }

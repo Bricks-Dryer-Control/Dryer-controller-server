@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dryer_Server.AutomaticControl;
 using Dryer_Server.Interfaces;
 using static Dryer_Server.Interfaces.ChamberConvertedStatus;
 
@@ -7,7 +8,7 @@ namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>
+        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IChamber
         {
             private int Id => Configuration.Id;
             private readonly Main parrent;
@@ -192,6 +193,17 @@ namespace Dryer_Server.Core
             private bool isListen(int id)
             {
                 return parrent.controllersCommunicator.isChamberListen(id);
+            }
+
+            //TODO to raczej do zmiany
+            public bool IsAutoControl => throw new NotImplementedException();
+            public bool IsQueued => parrent.controllersCommunicator.IsChamberQueued(Configuration.Id);
+            public int CurrentInFlow => Sets.InFlow;
+            public int CurrentOutFlow => Sets.OutFlow;
+            public int CurrentThroughFlow => Sets.ThroughFlow;
+            public void AddToQueue()
+            {
+                parrent.controllersCommunicator.Register(this.Configuration, true, this);
             }
         }
     }

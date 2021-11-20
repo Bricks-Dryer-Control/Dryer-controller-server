@@ -17,7 +17,15 @@ namespace Dryer_Server.Core
         private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
         private readonly IModbusControllerCommunicator controllersCommunicator;
 
-        private Dictionary<int, Chamber> Chambers { get; } = new Dictionary<int, Chamber>();
+        private Dictionary<int, Chamber> ChambersDictionary { get; } = new Dictionary<int, Chamber>();
+
+        public bool TryGetChamber(int id, out IChamber chamber)
+        {
+            var result = ChambersDictionary.TryGetValue(id, out var ch);
+            chamber = result ? ch : null;
+            return result;
+        }
+
         private Dictionary<int, RoofConfig> Roofs { get; } = new Dictionary<int, RoofConfig>
         {
             {1, new RoofConfig{ No = 1, RoofNo = 4, ThroughNo = 5 }},
@@ -73,12 +81,12 @@ namespace Dryer_Server.Core
                 var lastChamberValues = lastValues.FirstOrDefault(lv => lv.id == chamberSettings.Id);
                 var isActive = lastChamberValues.status?.IsListening ?? false;
                 controllersCommunicator.Register(chamberSettings, isActive, chamber);
-                Chambers.Add(chamberSettings.Id, chamber);
+                ChambersDictionary.Add(chamberSettings.Id, chamber);
             }
             
             foreach (var v in lastValues)
             {
-                var chamber = Chambers[v.id];
+                var chamber = ChambersDictionary[v.id];
                 if (v.status != null) 
                 {
                     chamber.Sets.InFlow = v.status.InFlowSet;
@@ -118,12 +126,12 @@ namespace Dryer_Server.Core
 
         public void ChangeActuators(int no, int inFlow, int outFlow, int throughFlow)
         {
-            var config = Chambers[no].Configuration;
+            var config = ChambersDictionary[no].Configuration;
             var actuators = new int[3];
             actuators[config.InFlowActuatorNo - 1] = inFlow;
             actuators[config.OutFlowActuatorNo - 1] = outFlow;
             actuators[config.ThroughFlowActuatorNo - 1] = throughFlow;
-            var chamber = Chambers[no];
+            var chamber = ChambersDictionary[no];
             chamber.Sets.InFlow = inFlow;
             chamber.Sets.OutFlow = outFlow;
             chamber.Sets.ThroughFlow = throughFlow;
@@ -132,7 +140,7 @@ namespace Dryer_Server.Core
 
         public void ChangeWent(int no, int value)
         {
-            Chambers[no].Sets.Special = value;
+            ChambersDictionary[no].Sets.Special = value;
             controllersCommunicator.SendSpecial(Wents[no], value);
         }
 
@@ -143,8 +151,8 @@ namespace Dryer_Server.Core
             var roofSet = isRoof ? 480 : 0;
             var throughSet = isRoof ? 0 : 480;
 
-            Chambers[roofNo].Sets.Special = roofSet;
-            Chambers[throughNo].Sets.Special = throughSet;
+            ChambersDictionary[roofNo].Sets.Special = roofSet;
+            ChambersDictionary[throughNo].Sets.Special = throughSet;
 
             controllersCommunicator.SendSpecial(roofNo, roofSet);
             controllersCommunicator.SendSpecial(throughNo, throughSet);
@@ -168,7 +176,7 @@ namespace Dryer_Server.Core
 
         public void ChangeChamberReading(int no, bool value)
         {
-            Chambers[no].Listen = value;
+            ChambersDictionary[no].Listen = value;
         }
 
         public HistoryResponse GetHistory(int no, DateTime from, DateTime to)
@@ -182,6 +190,7 @@ namespace Dryer_Server.Core
                 status = statusHistory,
             };
         }
+
 
         record RoofConfig
         {
