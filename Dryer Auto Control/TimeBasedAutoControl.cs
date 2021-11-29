@@ -8,7 +8,7 @@ namespace Dryer_Server.AutomaticControl
 {
     public class TimeBasedAutoControl: IDisposable
     {
-        IChamber Chamber { get; }
+        IAutoControlledChamber AutoControlledChamber { get; }
         DateTime StartMoment { get; }
         AutoControlItem Last { get; set; } = null;
         AutoControlItem Next { get; set; } = null;
@@ -16,10 +16,10 @@ namespace Dryer_Server.AutomaticControl
         AutoControl AutoControl { get; }
         Timer Timer { get; }
 
-        public TimeBasedAutoControl(TimeSpan checkingDelay, TimeSpan currentMoment, AutoControl autoControl, IChamber chamber)
+        public TimeBasedAutoControl(TimeSpan checkingDelay, TimeSpan currentMoment, AutoControl autoControl, IAutoControlledChamber autoControlledChamber)
         {
             StartMoment = DateTime.UtcNow - currentMoment;
-            Chamber = chamber;
+            AutoControlledChamber = autoControlledChamber;
             AutoControl = autoControl;
             
             ControlEnumerator = autoControl.Sets.OrderBy(s => s.Time).GetEnumerator();
@@ -37,17 +37,17 @@ namespace Dryer_Server.AutomaticControl
 
         void ElapsedEventHandler(object sender, ElapsedEventArgs eventArgs)
         {
-            if (!Chamber.IsAutoControl) return;
-            if (Chamber.IsQueued) return;
+            if (!AutoControlledChamber.IsAutoControl) return;
+            if (AutoControlledChamber.IsQueued) return;
 
             var moment = SetLastNextGetMoment();
             if (Last == null) return;
             var (inFlow, outFlow, throughFlow) = GetSettedValues(moment);
-            if (AutoControl.ControlDifference <= Math.Abs(Chamber.CurrentInFlow - inFlow)
-                || AutoControl.ControlDifference <= Math.Abs(Chamber.CurrentOutFlow - outFlow)
-                || AutoControl.ControlDifference <= Math.Abs(Chamber.CurrentThroughFlow - throughFlow))
+            if (AutoControl.ControlDifference <= Math.Abs(AutoControlledChamber.CurrentInFlow - inFlow)
+                || AutoControl.ControlDifference <= Math.Abs(AutoControlledChamber.CurrentOutFlow - outFlow)
+                || AutoControl.ControlDifference <= Math.Abs(AutoControlledChamber.CurrentThroughFlow - throughFlow))
             {
-                Chamber.AddToQueue();
+                AutoControlledChamber.AddToQueue();
             }
         }
 

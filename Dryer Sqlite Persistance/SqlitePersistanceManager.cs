@@ -174,7 +174,6 @@ namespace Dryer_Server.Persistance
         IEnumerable<AutoControl> IAutoControlPersistance.GetControls()
         {
             using var ctx = GetAutoControlCtx();
-            ctx.Definitions.RemoveRange(ctx.Definitions);
             return ctx.Definitions
                   .Where(d => !d.Deleted)
                   .OrderByDescending(d => d.Id)

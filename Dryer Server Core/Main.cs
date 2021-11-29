@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
+using Dryer_Server.AutomaticControl;
 
 namespace Dryer_Server.Core
 {
@@ -16,14 +17,14 @@ namespace Dryer_Server.Core
         private readonly IDryerConfigurationPersistance configurationPersistance;
         private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
         private readonly IModbusControllerCommunicator controllersCommunicator;
+        private readonly IAutoControlPersistance autoControlPersistence;
+        private Dictionary<int, AutoControlledChamber> ChambersDictionary { get; } = new Dictionary<int, AutoControlledChamber>();
 
-        private Dictionary<int, Chamber> ChambersDictionary { get; } = new Dictionary<int, Chamber>();
-
-        public bool TryGetChamber(int id, out IChamber chamber)
+        public void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint, TimeSpan checkingDelay)
         {
-            var result = ChambersDictionary.TryGetValue(id, out var ch);
-            chamber = result ? ch : null;
-            return result;
+            var chamber = ChambersDictionary[chamberId];
+            var autoControl = autoControlPersistence.GetControlWithItems(autoControlName);
+            var timeBasedAutoControl = new TimeBasedAutoControl(checkingDelay, startingPoint, autoControl, chamber);
         }
 
         private Dictionary<int, RoofConfig> Roofs { get; } = new Dictionary<int, RoofConfig>
@@ -46,6 +47,7 @@ namespace Dryer_Server.Core
             var persistance = new SqlitePersistanceManager();
             configurationPersistance = persistance;
             hisctoricalPersistance = persistance;
+            autoControlPersistence = persistance;
             controllersCommunicator = new ControllersCommunicator("COM12");
         }
 
@@ -74,7 +76,7 @@ namespace Dryer_Server.Core
                         .FirstOrDefault()
                 };
 
-                var chamber = new Chamber(chamberSettings, this, aditional);
+                var chamber = new AutoControlledChamber(chamberSettings, this, aditional);
                 if (chamberSettings.SensorId.HasValue)
                     modbusListener.Add(chamberSettings.SensorId.Value, chamber);
 

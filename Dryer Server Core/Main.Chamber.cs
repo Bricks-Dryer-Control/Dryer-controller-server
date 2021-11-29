@@ -8,9 +8,10 @@ namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IChamber
+        private class AutoControlledChamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IAutoControlledChamber
         {
             private int Id => Configuration.Id;
+            private bool isAutoControl;
             private readonly Main parrent;
             public CahmberValues Sets { get; } = new CahmberValues();
             public ChamberConfiguration Configuration { get; }
@@ -21,7 +22,8 @@ namespace Dryer_Server.Core
                 set => setListen(Id, value);
             }
 
-            public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
+
+            public AutoControlledChamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
             {
                 Configuration = configuration;
                 this.parrent = parrent;
@@ -63,14 +65,14 @@ namespace Dryer_Server.Core
 
             public void ValueReceived(ChamberControllerStatus v)
             {
-
                 if (v.workingStatus != ChamberControllerStatus.WorkingStatus.Error)
                 {
                     var exs = new List<Exception>();
                     var status = ConvertStatus(v);
-
+                    
                     TrySave(exs, status);
                     TrySendToUi(exs, status);
+                    this.isAutoControl=status.IsAuto;
 
                     if (AdditionalConfig?.RoofRoof != null)
                         TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v);
@@ -196,14 +198,16 @@ namespace Dryer_Server.Core
             }
 
             //TODO to raczej do zmiany
-            public bool IsAutoControl => throw new NotImplementedException();
-            public bool IsQueued => parrent.controllersCommunicator.IsChamberQueued(Configuration.Id);
-            public int CurrentInFlow => Sets.InFlow;
-            public int CurrentOutFlow => Sets.OutFlow;
-            public int CurrentThroughFlow => Sets.ThroughFlow;
-            public void AddToQueue()
+            bool IAutoControlledChamber.IsAutoControl => isAutoControl;
+            
+            //myślę, że tę wartość też możnaby zapisywać lokalnie w metodzie ValueReceived i tu ją zwracać, ale tak też wygląda ok
+            bool IAutoControlledChamber.IsQueued => parrent.controllersCommunicator.IsChamberQueued(Configuration.Id);
+            int IAutoControlledChamber.CurrentInFlow => Sets.InFlow;
+            int IAutoControlledChamber.CurrentOutFlow => Sets.OutFlow;
+            int IAutoControlledChamber.CurrentThroughFlow => Sets.ThroughFlow;
+            void IAutoControlledChamber.AddToQueue()
             {
-                parrent.controllersCommunicator.Register(this.Configuration, true, this);
+                throw new NotImplementedException();
             }
         }
     }

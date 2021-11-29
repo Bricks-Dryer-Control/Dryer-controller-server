@@ -1,6 +1,6 @@
 ﻿namespace Dryer_Server.Interfaces
 {
-    public interface IChamber 
+    public interface IAutoControlledChamber 
     {
         bool IsAutoControl { get; }
         bool IsQueued { get; }

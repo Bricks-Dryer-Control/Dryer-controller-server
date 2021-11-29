@@ -229,7 +229,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
 
         public bool IsChamberQueued(int id)
         {
-            return chambers.Any(c => c.Id == id) || inMotion.Any(c => c.Id == id);
+            return queue.IsQueued(Convert.ToByte(id));
         }
     }
 }

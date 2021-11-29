@@ -63,12 +63,7 @@ namespace Dryer_Server.WebApi.Controllers
         {
             try
             {
-                if (!mainController.TryGetChamber(requestBody.ChamberId, out var chamber))
-                {
-                    return BadRequest("No such chamber.");
-                }
-                var control = persistence.GetControlWithItems(requestBody.Name);
-                var autoControl = new TimeBasedAutoControl(requestBody.CheckingDelay, requestBody.StartPoint, control, chamber);
+                mainController.StartAutoControl(requestBody.ChamberId, requestBody.Name, requestBody.StartPoint, requestBody.CheckingDelay);
                 return Ok(null);
             }
             catch (Exception e)

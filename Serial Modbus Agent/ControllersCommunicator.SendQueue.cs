@@ -82,6 +82,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
                     return index + 1;
                 return null;
             }
+
+            internal bool IsQueued(byte id)
+            {
+                return GetPosition(id) != null;
+            }
             
             private interface IQueueItem
             {
