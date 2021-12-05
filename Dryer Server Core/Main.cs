@@ -18,7 +18,7 @@ namespace Dryer_Server.Core
         private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
         private readonly IModbusControllerCommunicator controllersCommunicator;
         private readonly IAutoControlPersistance autoControlPersistence;
-        private Dictionary<int, AutoControlledChamber> ChambersDictionary { get; } = new Dictionary<int, AutoControlledChamber>();
+        private Dictionary<int, Chamber> ChambersDictionary { get; } = new Dictionary<int, Chamber>();
 
         public void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint, TimeSpan checkingDelay)
         {
@@ -76,7 +76,7 @@ namespace Dryer_Server.Core
                         .FirstOrDefault()
                 };
 
-                var chamber = new AutoControlledChamber(chamberSettings, this, aditional);
+                var chamber = new Chamber(chamberSettings, this, aditional);
                 if (chamberSettings.SensorId.HasValue)
                     modbusListener.Add(chamberSettings.SensorId.Value, chamber);
 

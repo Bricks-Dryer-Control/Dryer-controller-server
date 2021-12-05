@@ -1,17 +1,16 @@
-﻿using System;
+﻿using Dryer_Server.Interfaces;
+using System;
 using System.Collections.Generic;
-using Dryer_Server.AutomaticControl;
-using Dryer_Server.Interfaces;
 using static Dryer_Server.Interfaces.ChamberConvertedStatus;
 
 namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class AutoControlledChamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IAutoControlledChamber
+        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IAutoControlledChamber
         {
             private int Id => Configuration.Id;
-            private bool isAutoControl;
+            private ChamberConvertedStatus currentStatus;
             private readonly Main parrent;
             public CahmberValues Sets { get; } = new CahmberValues();
             public ChamberConfiguration Configuration { get; }
@@ -23,7 +22,7 @@ namespace Dryer_Server.Core
             }
 
 
-            public AutoControlledChamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
+            public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
             {
                 Configuration = configuration;
                 this.parrent = parrent;
@@ -68,11 +67,11 @@ namespace Dryer_Server.Core
                 if (v.workingStatus != ChamberControllerStatus.WorkingStatus.Error)
                 {
                     var exs = new List<Exception>();
-                    var status = ConvertStatus(v);
+                    currentStatus = ConvertStatus(v);
+
+                    TrySave(exs, currentStatus);
+                    TrySendToUi(exs, currentStatus);
                     
-                    TrySave(exs, status);
-                    TrySendToUi(exs, status);
-                    this.isAutoControl=status.IsAuto;
 
                     if (AdditionalConfig?.RoofRoof != null)
                         TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v);
@@ -197,10 +196,8 @@ namespace Dryer_Server.Core
                 return parrent.controllersCommunicator.isChamberListen(id);
             }
 
-            //TODO to raczej do zmiany
-            bool IAutoControlledChamber.IsAutoControl => isAutoControl;
-            
-            //myślę, że tę wartość też możnaby zapisywać lokalnie w metodzie ValueReceived i tu ją zwracać, ale tak też wygląda ok
+
+            bool IAutoControlledChamber.IsAutoControl => currentStatus.IsAuto;
             bool IAutoControlledChamber.IsQueued => parrent.controllersCommunicator.IsChamberQueued(Configuration.Id);
             int IAutoControlledChamber.CurrentInFlow => Sets.InFlow;
             int IAutoControlledChamber.CurrentOutFlow => Sets.OutFlow;
