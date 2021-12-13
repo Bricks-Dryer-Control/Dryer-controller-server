@@ -38,18 +38,21 @@ namespace Serial_Modbus_Agent_Tests
         [TestMethod]
         public void ShouldDecodeFirst()
         {
+            ChamberSensors result = null;
             var listener = new SerialModbusChamberListener(null);
             var receiverMock = new Mock<IValueReceiver<ChamberSensors>>();
 
-            var checking = It.Is<ChamberSensors>(s 
-                => Math.Abs(s.Humidity - 66.855F) < 0.01F
-                && Math.Abs(s.Temperature - 1.899F) < 0.01F
-            );
-
-            receiverMock.Setup(r => r.ValueReceived(checking));
+            receiverMock
+                .Setup(r => r.ValueReceived(It.IsAny<ChamberSensors>()))
+                .Callback<ChamberSensors>(s => result = s);
             listener.Add(20, receiverMock.Object);
+
             listener.ReadValues(this.normalData.Skip(2*23).Take(23));
-            receiverMock.Verify(r => r.ValueReceived(checking));
+            
+            receiverMock.Verify(r => r.ValueReceived(It.IsAny<ChamberSensors>()), Times.Once);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(66.855F, result.Humidity, 0.01F);
+            Assert.AreEqual(1.899F, result.Temperature, 0.01F);
         }
     }
 }

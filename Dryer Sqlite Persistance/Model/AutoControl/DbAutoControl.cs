@@ -47,7 +47,9 @@ namespace Dryer_Server.Persistance.Model.AutoControl
                 Offset = Offset,
                 Percent = Percent,
                 TimeToSet = TimeToSet,
-                Sets = Sets.Select(i => i.ToAutoControlItem()).ToList()
+                Sets = Sets
+                    ?.Select(i => i.ToAutoControlItem()).ToList() 
+                    ?? new List<AutoControlItem>(),
             };
         }
         public DbAutoControl()
@@ -69,7 +71,9 @@ namespace Dryer_Server.Persistance.Model.AutoControl
             MaxOutFlow = autoControl.MaxOutFlow;
             Percent = autoControl.Percent;
             Offset = autoControl.Offset;
-            Sets = autoControl.Sets.Select(i => new DbAutoControlItem(i)).ToList();
+            Sets = autoControl.Sets
+                ?.Select(i => new DbAutoControlItem(i)).ToList() 
+                ?? new List<DbAutoControlItem>();
         }
     }
 }

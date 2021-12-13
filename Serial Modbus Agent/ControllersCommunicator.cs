@@ -226,5 +226,10 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             chambers[id - 1].Active = value;
         }
+
+        public bool IsChamberQueued(int id)
+        {
+            return queue.IsQueued(Convert.ToByte(id));
+        }
     }
 }

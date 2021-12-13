@@ -1,4 +1,3 @@
-using System;
 using Dryer_Server.Persistance.Model.AutoControl;
 using Dryer_Server.Persistance.Model.Historical;
 using Dryer_Server.Persistance.Model.Settings;

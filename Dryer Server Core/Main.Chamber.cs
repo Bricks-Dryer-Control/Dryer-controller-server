@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Dryer_Server.Interfaces;
+using System;
 using System.Collections.Generic;
-using Dryer_Server.Interfaces;
 using static Dryer_Server.Interfaces.ChamberConvertedStatus;
 
 namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>
+        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IAutoControlledChamber
         {
             private int Id => Configuration.Id;
+            private ChamberConvertedStatus currentStatus;
             private readonly Main parrent;
             public CahmberValues Sets { get; } = new CahmberValues();
             public ChamberConfiguration Configuration { get; }
@@ -19,6 +20,7 @@ namespace Dryer_Server.Core
                 get => isListen(Id); 
                 set => setListen(Id, value);
             }
+
 
             public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
             {
@@ -62,14 +64,14 @@ namespace Dryer_Server.Core
 
             public void ValueReceived(ChamberControllerStatus v)
             {
-
                 if (v.workingStatus != ChamberControllerStatus.WorkingStatus.Error)
                 {
                     var exs = new List<Exception>();
-                    var status = ConvertStatus(v);
+                    currentStatus = ConvertStatus(v);
 
-                    TrySave(exs, status);
-                    TrySendToUi(exs, status);
+                    TrySave(exs, currentStatus);
+                    TrySendToUi(exs, currentStatus);
+                    
 
                     if (AdditionalConfig?.RoofRoof != null)
                         TrySendRoofRoofToUi(exs, AdditionalConfig.RoofRoof.Value, v);
@@ -192,6 +194,17 @@ namespace Dryer_Server.Core
             private bool isListen(int id)
             {
                 return parrent.controllersCommunicator.isChamberListen(id);
+            }
+
+
+            bool IAutoControlledChamber.IsAutoControl => currentStatus.IsAuto;
+            bool IAutoControlledChamber.IsQueued => parrent.controllersCommunicator.IsChamberQueued(Configuration.Id);
+            int IAutoControlledChamber.CurrentInFlow => Sets.InFlow;
+            int IAutoControlledChamber.CurrentOutFlow => Sets.OutFlow;
+            int IAutoControlledChamber.CurrentThroughFlow => Sets.ThroughFlow;
+            void IAutoControlledChamber.AddToQueue()
+            {
+                throw new NotImplementedException();
             }
         }
     }

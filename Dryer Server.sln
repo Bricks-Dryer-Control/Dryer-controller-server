@@ -1,23 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer OldProgram Importer", "Dryer OldProgram Importer\Dryer OldProgram Importer.csproj", "{0D82ACAF-33FD-441A-AD12-6E03DB3529BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer OldProgram Importer", "Dryer OldProgram Importer\Dryer OldProgram Importer.csproj", "{0D82ACAF-33FD-441A-AD12-6E03DB3529BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Server Core", "Dryer Server Core\Dryer Server Core.csproj", "{04810623-7528-4ED1-AB34-2CE1B15F1E77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Server Core", "Dryer Server Core\Dryer Server Core.csproj", "{04810623-7528-4ED1-AB34-2CE1B15F1E77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Server Interfaces", "Dryer Server Interfaces\Dryer Server Interfaces.csproj", "{00FB7724-7C26-4354-91CA-4711598D5738}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Server Interfaces", "Dryer Server Interfaces\Dryer Server Interfaces.csproj", "{00FB7724-7C26-4354-91CA-4711598D5738}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Sqlite Persistance", "Dryer Sqlite Persistance\Dryer Sqlite Persistance.csproj", "{01F813E5-02D5-4055-97EC-166C6F6A4CFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Sqlite Persistance", "Dryer Sqlite Persistance\Dryer Sqlite Persistance.csproj", "{01F813E5-02D5-4055-97EC-166C6F6A4CFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serial Modbus Agent", "Serial Modbus Agent\Serial Modbus Agent.csproj", "{66467BEE-6B6E-4366-BD76-30CC00150D60}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serial Modbus Agent", "Serial Modbus Agent\Serial Modbus Agent.csproj", "{66467BEE-6B6E-4366-BD76-30CC00150D60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serial Modbus Agent Tests", "Serial Modbus Agent Tests\Serial Modbus Agent Tests.csproj", "{2F8FFFF6-161B-434A-A54A-97CE29CC81F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serial Modbus Agent Tests", "Serial Modbus Agent Tests\Serial Modbus Agent Tests.csproj", "{2F8FFFF6-161B-434A-A54A-97CE29CC81F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Webapi Service", "Dryer Webapi Service\Dryer Webapi Service.csproj", "{969973B3-632E-442B-BA07-0AAD585F03DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Webapi Service", "Dryer Webapi Service\Dryer Webapi Service.csproj", "{969973B3-632E-442B-BA07-0AAD585F03DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Auto Control", "Dryer Auto Control\Dryer Auto Control.csproj", "{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Auto Control", "Dryer Auto Control\Dryer Auto Control.csproj", "{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webapi Service Tests", "Webapi Service Tests\Webapi Service Tests.csproj", "{833E3FC4-F2D1-4B99-A403-E1F749520F72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,9 +29,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0D82ACAF-33FD-441A-AD12-6E03DB3529BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -128,5 +127,23 @@ Global
 		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x64.Build.0 = Release|Any CPU
 		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x86.ActiveCfg = Release|Any CPU
 		{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}.Release|x86.Build.0 = Release|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Debug|x64.Build.0 = Debug|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Debug|x86.Build.0 = Debug|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x64.ActiveCfg = Release|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x64.Build.0 = Release|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x86.ActiveCfg = Release|Any CPU
+		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E9A5382F-C630-4DCE-9EED-7D518ED99E3C}
 	EndGlobalSection
 EndGlobal

@@ -12,5 +12,7 @@ namespace Dryer_Server.Interfaces
         void StopAllActuators();
         bool isChamberListen(int id);
         void setChamberListen(int id, bool value);
+        bool IsChamberQueued(int id);
+
     }
 }

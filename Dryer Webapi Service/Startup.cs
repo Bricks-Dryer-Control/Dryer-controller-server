@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Dryer_Server.Interfaces;
+using Dryer_Server.Persistance;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace Dryer_Server.WebApi
@@ -19,6 +13,7 @@ namespace Dryer_Server.WebApi
     {
         static readonly UiDataKeeper ui = new UiDataKeeper();
         static readonly Dryer_Server.Core.Main main = new Dryer_Server.Core.Main(ui);
+        static readonly SqlitePersistanceManager persistanceManager = new SqlitePersistanceManager();
 
         public Startup(IConfiguration configuration)
         {
@@ -33,21 +28,22 @@ namespace Dryer_Server.WebApi
             var ui = new UiDataKeeper();
             services.AddSingleton(typeof(IMainController), main);
             services.AddSingleton(typeof(IUiDataKeeper), ui);
-
+            services.AddSingleton(typeof(IAutoControlPersistance), persistanceManager);
+            services.AddMvc().AddNewtonsoftJson();
             services.AddCors((options =>
             {
                 options.AddPolicy("NoCors",
                     builder =>
                     {
                         builder.AllowAnyOrigin()
-                               .AllowAnyMethod()
-                               .AllowAnyHeader();
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
                     });
             }));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Dryer_Server.WebApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Dryer_Server.WebApi", Version = "v1"});
             });
         }
 
@@ -62,15 +58,12 @@ namespace Dryer_Server.WebApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dryer_Server.WebApi v1"));
             }
-            
-            app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()); 
+
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             initTask.Wait();
             main.Start();
