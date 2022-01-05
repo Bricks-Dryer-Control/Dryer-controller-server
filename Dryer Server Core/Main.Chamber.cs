@@ -1,6 +1,7 @@
 ﻿using Dryer_Server.Interfaces;
 using System;
 using System.Collections.Generic;
+using Dryer_Server_Interfaces;
 using static Dryer_Server.Interfaces.ChamberConvertedStatus;
 
 namespace Dryer_Server.Core
@@ -202,9 +203,9 @@ namespace Dryer_Server.Core
             int IAutoControlledChamber.CurrentInFlow => Sets.InFlow;
             int IAutoControlledChamber.CurrentOutFlow => Sets.OutFlow;
             int IAutoControlledChamber.CurrentThroughFlow => Sets.ThroughFlow;
-            void IAutoControlledChamber.AddToQueue()
+            void IAutoControlledChamber.AddToQueue(IFlowInterpolator interpolator)
             {
-                throw new NotImplementedException();
+                parrent.controllersCommunicator.SendTimeBased(Configuration.Id, interpolator);
             }
         }
     }

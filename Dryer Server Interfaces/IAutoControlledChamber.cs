@@ -7,6 +7,6 @@
         int CurrentInFlow { get; }
         int CurrentOutFlow { get; }
         int CurrentThroughFlow { get; }
-        void AddToQueue();
+        void AddToQueue(IFlowInterpolator flowInterpolator);
     }
 }

@@ -6,7 +6,7 @@ using Dryer_Server.Interfaces;
 
 namespace Dryer_Server.AutomaticControl
 {
-    public class TimeBasedAutoControl: IDisposable
+    public class TimeBasedAutoControl: IDisposable, IFlowInterpolator
     {
         IAutoControlledChamber AutoControlledChamber { get; }
         DateTime StartMoment { get; }
@@ -16,12 +16,13 @@ namespace Dryer_Server.AutomaticControl
         AutoControl AutoControl { get; }
         Timer Timer { get; }
 
+        //current moment - za tyle się ma odpalić
         public TimeBasedAutoControl(TimeSpan checkingDelay, TimeSpan currentMoment, AutoControl autoControl, IAutoControlledChamber autoControlledChamber)
         {
             StartMoment = DateTime.UtcNow - currentMoment;
             AutoControlledChamber = autoControlledChamber;
             AutoControl = autoControl;
-            
+
             ControlEnumerator = autoControl.Sets.OrderBy(s => s.Time).GetEnumerator();
             if (ControlEnumerator.MoveNext())
                 Next = ControlEnumerator.Current;
@@ -47,7 +48,7 @@ namespace Dryer_Server.AutomaticControl
                 || AutoControl.ControlDifference <= Math.Abs(AutoControlledChamber.CurrentOutFlow - outFlow)
                 || AutoControl.ControlDifference <= Math.Abs(AutoControlledChamber.CurrentThroughFlow - throughFlow))
             {
-                AutoControlledChamber.AddToQueue();
+                AutoControlledChamber.AddToQueue(this);
             }
         }
 
@@ -86,6 +87,17 @@ namespace Dryer_Server.AutomaticControl
         {
             Timer.Stop();
             Timer.Dispose();
+        }
+
+        public Flow InterpolateFlow()
+        {
+            var (inFlow, outFlow, throughFlow) = GetCurrentSettedValues();
+            return new Flow()
+            {
+                InFlow = inFlow,
+                OutFlow = outFlow,
+                ThroughFlow = throughFlow
+            };
         }
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dryer_Server.Interfaces;
+using NLog.LayoutRenderers.Wrappers;
 
 namespace Dryer_Server.Serial_Modbus_Agent
 {
@@ -15,6 +17,17 @@ namespace Dryer_Server.Serial_Modbus_Agent
             public SendQueue(ControllersCommunicator communicator)
             {
                 this.communicator = communicator;
+            }
+
+            internal int SendTimeBased(int id, IFlowInterpolator interpolator)
+            {
+                var newSend = new InterpolatedActuators(id, interpolator);
+                lock (ItemsLock)
+                {
+                    Items.RemoveAll(i => i.No == id && i is InterpolatedActuators);
+                    Items.Add(newSend);
+                    return Items.Count;
+                }
             }
 
             internal int SendActuators(int id, int actuator1, int actuator2, int actuator3)
@@ -92,6 +105,27 @@ namespace Dryer_Server.Serial_Modbus_Agent
             {
                 int No { get; }
                 void SendQueue(ControllersCommunicator communicator);
+            }
+
+            private class InterpolatedActuators : IQueueItem
+            {
+                private readonly byte no;
+                private readonly IFlowInterpolator interpolator;
+
+                public InterpolatedActuators(int no,IFlowInterpolator interpolator)
+                {
+                    this.interpolator = interpolator;
+                    this.no = (byte)no;
+                }
+
+
+                public int No => no;
+                public void SendQueue(ControllersCommunicator communicator)
+                {
+                    var interpolated=interpolator.InterpolateFlow();
+                    ushort[] actuators = { (ushort)interpolated.InFlow, (ushort)interpolated.OutFlow, (ushort)interpolated.ThroughFlow };
+                    communicator.WriteActuators(no, actuators);
+                }
             }
 
             private class NormalActuators : IQueueItem
