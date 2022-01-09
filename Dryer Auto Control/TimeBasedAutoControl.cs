@@ -3,10 +3,11 @@ using System.Linq;
 using System.Timers;
 using System.Collections.Generic;
 using Dryer_Server.Interfaces;
+using Dryer_Server_Interfaces;
 
 namespace Dryer_Server.AutomaticControl
 {
-    public class TimeBasedAutoControl: IDisposable, IFlowInterpolator
+    public class TimeBasedAutoControl: IDisposable, IFlowInterpolator, ITimeBasedAutoControl
     {
         IAutoControlledChamber AutoControlledChamber { get; }
         DateTime StartMoment { get; }
@@ -14,20 +15,37 @@ namespace Dryer_Server.AutomaticControl
         AutoControlItem Next { get; set; } = null;
         IEnumerator<AutoControlItem> ControlEnumerator { get; set; } = null;
         AutoControl AutoControl { get; }
-        Timer Timer { get; }
+        Timer Timer { get; set; }
 
-        //current moment - za tyle się ma odpalić
         public TimeBasedAutoControl(TimeSpan checkingDelay, TimeSpan currentMoment, AutoControl autoControl, IAutoControlledChamber autoControlledChamber)
         {
             StartMoment = DateTime.UtcNow - currentMoment;
             AutoControlledChamber = autoControlledChamber;
             AutoControl = autoControl;
+            SetControlEnumerator(autoControl);
+            SetTimer(checkingDelay);
+        }
 
+        private void SetControlEnumerator(AutoControl autoControl)
+        {
             ControlEnumerator = autoControl.Sets.OrderBy(s => s.Time).GetEnumerator();
             if (ControlEnumerator.MoveNext())
                 Next = ControlEnumerator.Current;
+        }
 
-            Timer = new Timer {
+        public TimeBasedAutoControl(TimeSpan checkingDelay,DateTime startMoment, AutoControl autoControl, IAutoControlledChamber autoControlledChamber)
+        {
+            StartMoment = startMoment;
+            AutoControlledChamber = autoControlledChamber;
+            AutoControl = autoControl;
+            SetControlEnumerator(autoControl);
+            SetTimer(checkingDelay);
+        }
+
+        private void SetTimer(TimeSpan checkingDelay)
+        {
+            Timer = new Timer
+            {
                 AutoReset = true,
                 Enabled = false,
                 Interval = checkingDelay.TotalMilliseconds,
@@ -99,5 +117,14 @@ namespace Dryer_Server.AutomaticControl
                 ThroughFlow = throughFlow
             };
         }
+
+        DateTime ITimeBasedAutoControl.StartMoment => StartMoment;
+
+        IAutoControlledChamber ITimeBasedAutoControl.AutoControlledChamber => AutoControlledChamber;
+
+        AutoControl ITimeBasedAutoControl.AutoControl => AutoControl;
+
+        TimeSpan ITimeBasedAutoControl.CheckingDelay => TimeSpan.FromMilliseconds(Timer.Interval);
+
     }
 }

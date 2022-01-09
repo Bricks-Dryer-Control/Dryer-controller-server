@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System;
 using System.Diagnostics;
 using Dryer_Server.AutomaticControl;
+using Dryer_Server_Interfaces;
 
 namespace Dryer_Server.Core
 {
@@ -18,13 +19,17 @@ namespace Dryer_Server.Core
         private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
         private readonly IModbusControllerCommunicator controllersCommunicator;
         private readonly IAutoControlPersistance autoControlPersistence;
+        private readonly ITimeBasedAutoControlPersistance timeBasedAutoControlPersistance;
+
         private Dictionary<int, Chamber> ChambersDictionary { get; } = new Dictionary<int, Chamber>();
+        private readonly List<ITimeBasedAutoControl> timeBasedAutoControls = new();
 
         public void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint, TimeSpan checkingDelay)
         {
             var chamber = ChambersDictionary[chamberId];
             var autoControl = autoControlPersistence.GetControlWithItems(autoControlName);
             var timeBasedAutoControl = new TimeBasedAutoControl(checkingDelay, startingPoint, autoControl, chamber);
+            timeBasedAutoControls.Add(timeBasedAutoControl);
         }
 
         private Dictionary<int, RoofConfig> Roofs { get; } = new Dictionary<int, RoofConfig>
@@ -84,6 +89,7 @@ namespace Dryer_Server.Core
                 var isActive = lastChamberValues.status?.IsListening ?? false;
                 controllersCommunicator.Register(chamberSettings, isActive, chamber);
                 ChambersDictionary.Add(chamberSettings.Id, chamber);
+                StartChamberTimeBasedAutoControl(chamber);
             }
             
             foreach (var v in lastValues)
@@ -100,6 +106,13 @@ namespace Dryer_Server.Core
             await ui.InitializationFinishedAsync(lastValues, initWents, initRoofs);
         }
 
+        private void StartChamberTimeBasedAutoControl(Chamber chamber)
+        {
+            var autoControlledChamber = chamber as IAutoControlledChamber;
+            if (autoControlledChamber.IsAutoControl)
+                timeBasedAutoControlPersistance.LoadTimeBasedForChamber(autoControlledChamber);
+        }
+
         public void Start()
         {
             modbusListener.Start();
@@ -110,6 +123,7 @@ namespace Dryer_Server.Core
         {
             modbusListener.Stop();
             controllersCommunicator.Stop();
+            timeBasedAutoControls.ForEach(t=>timeBasedAutoControlPersistance.Save(t));
         }
 
         private void HandleExceptions(IEnumerable<Exception> exs)

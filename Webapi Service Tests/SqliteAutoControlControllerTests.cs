@@ -6,6 +6,7 @@ using Dryer_Server.Persistance.Model.Settings;
 using Dryer_Server.WebApi.Controllers;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Dryer_Sqlite_Persistance.Model.AutoControl;
 using Xunit;
 
 namespace Webapi_Service_Tests
@@ -13,18 +14,20 @@ namespace Webapi_Service_Tests
     public class SqliteAutoControlControllerTests : AutoControlControllerTest
     {
         private readonly IAutoControlPersistance persistence;
+        private readonly IMainController mainController;
         public SqliteAutoControlControllerTests() :
             base(new DbContextOptionsBuilder<AutoControlContext>().UseSqlite("Filename=Test.db").Options)
         {
             persistence= new SqlitePersistanceManager(ContextOptions,
-                new DbContextOptions<HistoricalContext>(), new DbContextOptions<SettingsContext>());
+                new DbContextOptions<HistoricalContext>(), new DbContextOptions<SettingsContext>(), new DbContextOptions<TimeBasedAutoControlContext>());
+            
         }
 
 
         [Fact]
         public void GetControlsWithoutItems()
         {
-            var controller = new AutoControlController(persistence);
+            var controller = new AutoControlController(persistence, mainController);
 
             var result=controller.GetControlsWithoutItems().ToList();
 
@@ -38,7 +41,7 @@ namespace Webapi_Service_Tests
         [Fact]
         public void GetControlsWithItems()
         {
-            var controller = new AutoControlController(persistence);
+            var controller = new AutoControlController(persistence, mainController);
 
             var result = controller.GetControlWithItems("ctrl1");
 
@@ -49,7 +52,7 @@ namespace Webapi_Service_Tests
         [Fact]
         public void DeleteByName()
         {
-            var controller = new AutoControlController(persistence);
+            var controller = new AutoControlController(persistence, mainController);
 
             controller.DeleteByName("ctrl1");
 
@@ -61,7 +64,7 @@ namespace Webapi_Service_Tests
         [Fact]
         public void CreateAutoControlShouldDeactivateExistingWithTheSameName()
         {
-            var controller = new AutoControlController(persistence);
+            var controller = new AutoControlController(persistence,mainController);
             var ac = existingAutoControls[0];
 
             controller.CreateAutoControl(ac);
@@ -74,7 +77,7 @@ namespace Webapi_Service_Tests
         [Fact]
         public void CreateAutoControl()
         {
-            var controller = new AutoControlController(persistence);
+            var controller = new AutoControlController(persistence, mainController);
             var ac = new AutoControl()
             {
                 Name = "test"

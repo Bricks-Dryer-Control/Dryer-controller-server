@@ -5,20 +5,25 @@ using Dryer_Server.Persistance.Model.Historical;
 using Dryer_Server.Persistance.Model.Settings;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Dryer_Server.AutomaticControl;
 using Dryer_Server.Persistance.Model.AutoControl;
+using Dryer_Server_Interfaces;
+using Dryer_Sqlite_Persistance.Model.AutoControl;
 
 namespace Dryer_Server.Persistance
 {
     public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, IDryerConfigurationPersistance,
-        IAutoControlPersistance
+        IAutoControlPersistance, ITimeBasedAutoControlPersistance
     {
         readonly DbContextOptions<SettingsContext> settingsCtxOptions;
         readonly DbContextOptions<HistoricalContext> historicalCtxOptions;
         readonly DbContextOptions<AutoControlContext> autocontrolCtxOptions;
+        private readonly DbContextOptions<TimeBasedAutoControlContext> timeBasedAutoControlOptions;
 
         HistoricalContext GetHistoricalCtx() => new HistoricalContext(historicalCtxOptions);
         SettingsContext GetSettingsCtx() => new SettingsContext(settingsCtxOptions);
         AutoControlContext GetAutoControlCtx() => new AutoControlContext(autocontrolCtxOptions);
+        TimeBasedAutoControlContext GetTimeBasedAutoControlContext() => new TimeBasedAutoControlContext(timeBasedAutoControlOptions);
 
         public SqlitePersistanceManager()
         {
@@ -36,16 +41,24 @@ namespace Dryer_Server.Persistance
             var autocontrolConnectionString = Startup.GetAutoControlConnectionString();
             autocontrolBuilder.UseSqlite(autocontrolConnectionString);
             autocontrolCtxOptions = autocontrolBuilder.Options;
+
+            var timeBasedAutoControlBuilder= new DbContextOptionsBuilder<TimeBasedAutoControlContext>();
+            var timeBasedAutocontrolConnectionString = Startup.GetAutoControlConnectionString();
+            timeBasedAutoControlBuilder.UseSqlite(timeBasedAutocontrolConnectionString);
+            timeBasedAutoControlOptions = timeBasedAutoControlBuilder.Options;
+
         }
 
         public SqlitePersistanceManager(DbContextOptions<AutoControlContext> autoControlContextOptions,
             DbContextOptions<HistoricalContext> historicalContextOptions,
-            DbContextOptions<SettingsContext> settingsContextOptions
+            DbContextOptions<SettingsContext> settingsContextOptions,
+            DbContextOptions<TimeBasedAutoControlContext> timeBasedAutoControlContextOptions
             )
         {
             settingsCtxOptions = settingsContextOptions;
             historicalCtxOptions = historicalContextOptions;
             autocontrolCtxOptions = autoControlContextOptions;
+            timeBasedAutoControlOptions = timeBasedAutoControlContextOptions;
         }
 
         public IEnumerable<IChamberSensorHistoricValue> GetSensorsHistory(int id, DateTime startUtc, DateTime finishUtc)
@@ -191,6 +204,23 @@ namespace Dryer_Server.Persistance
             foreach (var autoControl in ctx.Definitions.Where(d => !d.Deleted && d.Name == name))
                 autoControl.Deleted = true;
             ctx.SaveChanges();
+        }
+
+        void ITimeBasedAutoControlPersistance.Save(ITimeBasedAutoControl timeBasedAutoControl)
+        {
+            using var ctx = GetTimeBasedAutoControlContext();
+            ctx.Add(new DbTimeBasedAutoControl(timeBasedAutoControl));
+            ctx.SaveChanges();
+        }
+
+
+        ITimeBasedAutoControl ITimeBasedAutoControlPersistance.LoadTimeBasedForChamber(IAutoControlledChamber chamber)
+        {
+            using var timeBasedAutoControlContext = GetTimeBasedAutoControlContext();
+            var timeBasedAutoControlDb= timeBasedAutoControlContext.TimeBasedAutoControls.SingleOrDefault(t => t.ChamberId == chamber.Id);
+            if (timeBasedAutoControlDb == null) return null;
+            return new TimeBasedAutoControl(timeBasedAutoControlDb.CheckingDelay,
+                timeBasedAutoControlDb.StartMoment, timeBasedAutoControlDb.AutoControl.ToAutoControl(), chamber);
         }
     }
 }

@@ -203,9 +203,12 @@ namespace Dryer_Server.Core
             int IAutoControlledChamber.CurrentInFlow => Sets.InFlow;
             int IAutoControlledChamber.CurrentOutFlow => Sets.OutFlow;
             int IAutoControlledChamber.CurrentThroughFlow => Sets.ThroughFlow;
+
+            int IAutoControlledChamber.Id => Configuration.Id;
+
             void IAutoControlledChamber.AddToQueue(IFlowInterpolator interpolator)
             {
-                parrent.controllersCommunicator.SendTimeBased(Configuration.Id, interpolator);
+                parrent.controllersCommunicator.SendTimeBased(Id, interpolator);
             }
         }
     }

@@ -2,6 +2,7 @@
 {
     public interface IAutoControlledChamber 
     {
+        int Id { get; }
         bool IsAutoControl { get; }
         bool IsQueued { get; }
         int CurrentInFlow { get; }
