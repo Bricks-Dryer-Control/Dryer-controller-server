@@ -1,6 +1,6 @@
 ﻿using Dryer_Server.Interfaces;
 
-namespace Dryer_Server_Interfaces
+namespace Dryer_Server.Interfaces
 {
     public interface ITimeBasedAutoControlPersistance
     {

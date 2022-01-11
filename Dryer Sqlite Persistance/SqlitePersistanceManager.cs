@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
 using Dryer_Server.Interfaces;
+using Dryer_Server.Persistance.Model.AutoControl;
 using Dryer_Server.Persistance.Model.Historical;
 using Dryer_Server.Persistance.Model.Settings;
+using Dryer_Sqlite.Persistance.Model.AutoControl;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Dryer_Server.AutomaticControl;
-using Dryer_Server.Persistance.Model.AutoControl;
-using Dryer_Server_Interfaces;
-using Dryer_Sqlite_Persistance.Model.AutoControl;
 
 namespace Dryer_Server.Persistance
 {

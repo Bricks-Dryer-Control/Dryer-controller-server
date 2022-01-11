@@ -1,11 +1,10 @@
-﻿using Dryer_Server.Persistance.Model.AutoControl;
-using Dryer_Server_Interfaces;
+﻿using Dryer_Server.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Dryer_Server.AutomaticControl;
+using Dryer_Server.Persistance.Model.AutoControl;
 
-namespace Dryer_Sqlite_Persistance.Model.AutoControl
+namespace Dryer_Sqlite.Persistance.Model.AutoControl
 {
     [Table("TimeBasedAutoControls")]
     public record DbTimeBasedAutoControl

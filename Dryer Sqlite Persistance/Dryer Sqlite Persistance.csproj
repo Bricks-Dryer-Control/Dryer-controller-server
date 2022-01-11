@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dryer Auto Control\Dryer Auto Control.csproj" />
     <ProjectReference Include="..\Dryer Server Interfaces\Dryer Server Interfaces.csproj" />
   </ItemGroup>
 

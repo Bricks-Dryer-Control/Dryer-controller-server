@@ -24,8 +24,14 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 var newSend = new InterpolatedActuators(id, interpolator);
                 lock (ItemsLock)
                 {
-                    Items.RemoveAll(i => i.No == id && i is InterpolatedActuators);
-                    Items.Add(newSend);
+                    var item=Items.SingleOrDefault(i=>i.No==id && i is InterpolatedActuators);
+                    if (item == null)
+                    {
+                        Items.Add(newSend);
+                    }
+                    else
+                        (item as InterpolatedActuators).Interpolator = interpolator;
+
                     return Items.Count;
                 }
             }
@@ -110,11 +116,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
             private class InterpolatedActuators : IQueueItem
             {
                 private readonly byte no;
-                private readonly IFlowInterpolator interpolator;
+                public IFlowInterpolator Interpolator { get; set; }
 
                 public InterpolatedActuators(int no,IFlowInterpolator interpolator)
                 {
-                    this.interpolator = interpolator;
+                    this.Interpolator = interpolator;
                     this.no = (byte)no;
                 }
 
@@ -122,7 +128,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 public int No => no;
                 public void SendQueue(ControllersCommunicator communicator)
                 {
-                    var interpolated=interpolator.InterpolateFlow();
+                    var interpolated=Interpolator.InterpolateFlow();
                     ushort[] actuators = { (ushort)interpolated.InFlow, (ushort)interpolated.OutFlow, (ushort)interpolated.ThroughFlow };
                     communicator.WriteActuators(no, actuators);
                 }

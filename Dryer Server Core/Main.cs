@@ -1,13 +1,11 @@
 using Dryer_Server.Interfaces;
-using Dryer_Server.Serial_Modbus_Agent;
 using Dryer_Server.Persistance;
+using Dryer_Server.Serial_Modbus_Agent;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using System.Diagnostics;
-using Dryer_Server.AutomaticControl;
-using Dryer_Server_Interfaces;
 
 namespace Dryer_Server.Core
 {
@@ -89,7 +87,7 @@ namespace Dryer_Server.Core
                 var isActive = lastChamberValues.status?.IsListening ?? false;
                 controllersCommunicator.Register(chamberSettings, isActive, chamber);
                 ChambersDictionary.Add(chamberSettings.Id, chamber);
-                StartChamberTimeBasedAutoControl(chamber);
+                InitializeChamberTimeBasedAutoControl(chamber);
             }
             
             foreach (var v in lastValues)
@@ -106,7 +104,7 @@ namespace Dryer_Server.Core
             await ui.InitializationFinishedAsync(lastValues, initWents, initRoofs);
         }
 
-        private void StartChamberTimeBasedAutoControl(Chamber chamber)
+        private void InitializeChamberTimeBasedAutoControl(Chamber chamber)
         {
             var autoControlledChamber = chamber as IAutoControlledChamber;
             if (autoControlledChamber.IsAutoControl)

@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Timers;
 using System.Collections.Generic;
-using Dryer_Server.Interfaces;
 
-namespace Dryer_Server.AutomaticControl
+namespace Dryer_Server.Interfaces
 {
     public class TimeBasedAutoControl: IDisposable, IFlowInterpolator, ITimeBasedAutoControl
     {

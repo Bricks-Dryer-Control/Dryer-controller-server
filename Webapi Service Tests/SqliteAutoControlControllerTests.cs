@@ -6,7 +6,7 @@ using Dryer_Server.Persistance.Model.Settings;
 using Dryer_Server.WebApi.Controllers;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Dryer_Sqlite_Persistance.Model.AutoControl;
+using Dryer_Sqlite.Persistance.Model.AutoControl;
 using Xunit;
 
 namespace Webapi_Service_Tests
