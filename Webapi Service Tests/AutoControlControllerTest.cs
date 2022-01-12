@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dryer_Server.Interfaces;
+﻿using Dryer_Server.Interfaces;
 using Dryer_Server.Persistance.Model.AutoControl;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace Webapi_Service_Tests
 {

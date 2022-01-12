@@ -68,6 +68,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
             return queue.SendSpecial(id, value);
         }
 
+        public int SendTimeBased(int id, IFlowInterpolator interpolator)
+        {
+            return queue.SendTimeBased(id, interpolator);
+        }
+
         public void Start()
         {
             chambers.Sort((x, y) => x.Id.CompareTo(y.Id));
