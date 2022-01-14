@@ -7,6 +7,5 @@ namespace Dryer_Server.Interfaces
         DateTime StartMoment { get; }
         IAutoControlledChamber AutoControlledChamber { get; }
         AutoControl AutoControl { get; }
-        TimeSpan CheckingDelay { get; }
     }
 }

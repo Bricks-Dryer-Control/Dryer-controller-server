@@ -15,7 +15,6 @@ namespace Dryer_Sqlite.Persistance.Model.AutoControl
         public DbAutoControl AutoControl { get; set; }
         [ForeignKey("ChamberConfiguration")]
         public int ChamberId { get; set; }
-        public TimeSpan CheckingDelay { get; set; }
 
 
         public DbTimeBasedAutoControl()
@@ -25,7 +24,6 @@ namespace Dryer_Sqlite.Persistance.Model.AutoControl
             AutoControl =new DbAutoControl(timeBasedAutoControl.AutoControl);
             ChamberId = timeBasedAutoControl.AutoControlledChamber.Id;
             StartMoment = timeBasedAutoControl.StartMoment;
-            CheckingDelay = timeBasedAutoControl.CheckingDelay;
         }
 
     }

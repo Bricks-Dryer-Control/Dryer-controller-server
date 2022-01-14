@@ -212,13 +212,12 @@ namespace Dryer_Server.Persistance
         }
 
 
-        ITimeBasedAutoControl ITimeBasedAutoControlPersistance.LoadTimeBasedForChamber(IAutoControlledChamber chamber)
+        ITimeBasedAutoControl ITimeBasedAutoControlPersistance.LoadTimeBasedForChamber(IAutoControlledChamber chamber, TimeSpan checkingDelay)
         {
             using var timeBasedAutoControlContext = GetTimeBasedAutoControlContext();
             var timeBasedAutoControlDb= timeBasedAutoControlContext.TimeBasedAutoControls.SingleOrDefault(t => t.ChamberId == chamber.Id);
             if (timeBasedAutoControlDb == null) return null;
-            return new TimeBasedAutoControl(timeBasedAutoControlDb.CheckingDelay,
-                timeBasedAutoControlDb.StartMoment, timeBasedAutoControlDb.AutoControl.ToAutoControl(), chamber);
+            return new TimeBasedAutoControl(checkingDelay, timeBasedAutoControlDb.StartMoment, timeBasedAutoControlDb.AutoControl.ToAutoControl(), chamber);
         }
     }
 }

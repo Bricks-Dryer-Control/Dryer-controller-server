@@ -63,7 +63,7 @@ namespace Dryer_Server.WebApi.Controllers
         {
             try
             {
-                mainController.StartAutoControl(requestBody.ChamberId, requestBody.Name, requestBody.StartPoint, requestBody.CheckingDelay);
+                mainController.StartAutoControl(requestBody.ChamberId, requestBody.Name, requestBody.StartPoint);
                 return Ok(null);
             }
             catch (Exception e)
@@ -77,7 +77,6 @@ namespace Dryer_Server.WebApi.Controllers
             public string Name { get; set; }
             public int ChamberId { get; set; }
             public TimeSpan StartPoint { get; set; }
-            public TimeSpan CheckingDelay { get; set; }
         }
 
     }

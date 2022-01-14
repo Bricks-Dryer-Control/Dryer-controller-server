@@ -122,7 +122,6 @@ namespace Dryer_Server.Interfaces
 
         AutoControl ITimeBasedAutoControl.AutoControl => AutoControl;
 
-        TimeSpan ITimeBasedAutoControl.CheckingDelay => TimeSpan.FromMilliseconds(Timer.Interval);
 
     }
 }

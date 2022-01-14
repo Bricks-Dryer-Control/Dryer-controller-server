@@ -1,3 +1,4 @@
+using System;
 using Dryer_Server.Interfaces;
 using Dryer_Server.Persistance;
 using Microsoft.AspNetCore.Builder;
@@ -12,12 +13,13 @@ namespace Dryer_Server.WebApi
     public class Startup
     {
         static readonly UiDataKeeper ui = new UiDataKeeper();
-        static readonly Dryer_Server.Core.Main main = new Dryer_Server.Core.Main(ui);
+        private static Dryer_Server.Core.Main main;
         static readonly SqlitePersistanceManager persistanceManager = new SqlitePersistanceManager();
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            main = new Dryer_Server.Core.Main(ui, TimeSpan.FromSeconds(configuration.GetSection("ApplicationParameters").GetValue<int>("CheckingDelayInSeconds")));
         }
 
         public IConfiguration Configuration { get; }

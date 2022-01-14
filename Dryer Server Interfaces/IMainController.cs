@@ -16,6 +16,6 @@ namespace Dryer_Server.Interfaces
         CommonStatus GetCommon();
         void ChangeChamberReading(int no, bool value);
         HistoryResponse GetHistory(int no, DateTime from, DateTime to);
-        void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint, TimeSpan checkingDelay);
+        void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint);
     }
 }

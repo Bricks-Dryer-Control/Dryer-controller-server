@@ -12,6 +12,7 @@ namespace Dryer_Server.Core
     public partial class Main : IMainController, IDisposable
     {
         private readonly IUiInterface ui;
+        private readonly TimeSpan CheckingDelay;
         private readonly SerialModbusChamberListener modbusListener;
         private readonly IDryerConfigurationPersistance configurationPersistance;
         private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
@@ -22,11 +23,11 @@ namespace Dryer_Server.Core
         private Dictionary<int, Chamber> ChambersDictionary { get; } = new Dictionary<int, Chamber>();
         private readonly List<ITimeBasedAutoControl> timeBasedAutoControls = new();
 
-        public void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint, TimeSpan checkingDelay)
+        public void StartAutoControl(int chamberId, string autoControlName, TimeSpan startingPoint)
         {
             var chamber = ChambersDictionary[chamberId];
             var autoControl = autoControlPersistence.GetControlWithItems(autoControlName);
-            var timeBasedAutoControl = new TimeBasedAutoControl(checkingDelay, startingPoint, autoControl, chamber);
+            var timeBasedAutoControl = new TimeBasedAutoControl(CheckingDelay, startingPoint, autoControl, chamber);
             timeBasedAutoControls.Add(timeBasedAutoControl);
         }
 
@@ -43,9 +44,10 @@ namespace Dryer_Server.Core
             {2, 17},
         };
 
-        public Main(IUiInterface ui)
+        public Main(IUiInterface ui, TimeSpan checkingDelay)
         {
             this.ui = ui;
+            CheckingDelay = checkingDelay;
             modbusListener = new SerialModbusChamberListener("COM10");
             var persistance = new SqlitePersistanceManager();
             configurationPersistance = persistance;
@@ -108,7 +110,7 @@ namespace Dryer_Server.Core
         {
             var autoControlledChamber = chamber as IAutoControlledChamber;
             if (autoControlledChamber.IsAutoControl)
-                timeBasedAutoControlPersistance.LoadTimeBasedForChamber(autoControlledChamber);
+                timeBasedAutoControlPersistance.LoadTimeBasedForChamber(autoControlledChamber, CheckingDelay);
         }
 
         public void Start()
