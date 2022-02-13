@@ -87,7 +87,6 @@ namespace Dryer_Server.Core
                 var isActive = lastChamberValues.status?.IsListening ?? false;
                 controllersCommunicator.Register(chamberSettings, isActive, chamber);
                 ChambersDictionary.Add(chamberSettings.Id, chamber);
-                InitializeChamberTimeBasedAutoControl(chamber);
             }
             
             foreach (var v in lastValues)
@@ -95,9 +94,8 @@ namespace Dryer_Server.Core
                 var chamber = ChambersDictionary[v.id];
                 if (v.status != null) 
                 {
-                    chamber.Sets.InFlow = v.status.InFlowSet;
-                    chamber.Sets.OutFlow = v.status.OutFlowSet;
-                    chamber.Sets.ThroughFlow = v.status.ThroughFlowSet;
+                    chamber.InitializeStatus(v.status);
+                    InitializeChamberTimeBasedAutoControl(chamber);
                 }
             }
 

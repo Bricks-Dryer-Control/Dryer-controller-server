@@ -127,6 +127,14 @@ namespace Dryer_Server.Core
                 }
             }
 
+            internal void InitializeStatus(ChamberConvertedStatus status)
+            {
+                Sets.InFlow = status.InFlowSet;
+                Sets.OutFlow = status.OutFlowSet;
+                Sets.ThroughFlow = status.ThroughFlowSet;
+                currentStatus = status;
+            }
+
             private WorkingStatus GetStatus(ChamberControllerStatus status)
             {
                 if (status.workingStatus == ChamberControllerStatus.WorkingStatus.Off)

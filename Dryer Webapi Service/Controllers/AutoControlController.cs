@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dryer_Server.AutomaticControl;
+using Dryer_Server.WebApi.Model;
+using AutoControl = Dryer_Server.WebApi.Model.AutoControl;
 
 namespace Dryer_Server.WebApi.Controllers
 {
@@ -21,9 +22,9 @@ namespace Dryer_Server.WebApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<AutoControl> GetControlsWithoutItems()
+        public IEnumerable<string> GetControlsWithoutItems()
         {
-            return persistence.GetControls().ToList();
+            return persistence.GetControls().Select(c => c.Name);
         }
 
         [HttpGet]
@@ -34,6 +35,7 @@ namespace Dryer_Server.WebApi.Controllers
         }
 
         [HttpDelete]
+        [Route("{name}")]
         public void DeleteByName(string name)
         {
             persistence.Delete(name);
