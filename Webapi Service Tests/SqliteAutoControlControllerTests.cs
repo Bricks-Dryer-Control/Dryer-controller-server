@@ -46,7 +46,7 @@ namespace Webapi_Service_Tests
             var result = controller.GetControlWithItems("ctrl1");
 
             Assert.Equal("ctrl1", result.Name);
-            Assert.Equal(2,result.Sets.Count);
+            Assert.Equal(2,result.Sets.Count());
         }
 
         [Fact]

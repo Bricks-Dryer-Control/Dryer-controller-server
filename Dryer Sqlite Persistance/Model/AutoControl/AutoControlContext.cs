@@ -26,8 +26,7 @@ namespace Dryer_Server.Persistance.Model.AutoControl
         public AutoControlContext CreateDbContext(string[] args) 
         { 
             var builder = new DbContextOptionsBuilder<AutoControlContext>();
-            var connectionString = Startup.GetAutoControlConnectionString();
-            builder.UseSqlite(connectionString); 
+            builder.UseSqlite("Data Source=./automatic.db;Mode=ReadWriteCreate;Cache=Default;Foreign Keys=True"); 
             return new AutoControlContext(builder.Options); 
         } 
     }

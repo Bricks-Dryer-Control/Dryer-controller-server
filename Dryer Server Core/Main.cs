@@ -1,6 +1,7 @@
 using Dryer_Server.Interfaces;
 using Dryer_Server.Persistance;
 using Dryer_Server.Serial_Modbus_Agent;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,7 @@ namespace Dryer_Server.Core
     public partial class Main : IMainController, IDisposable
     {
         private readonly IUiInterface ui;
-        private readonly SerialModbusChamberListener modbusListener;
+        private readonly ISerialModbusChamberListener modbusListener;
         private readonly IDryerConfigurationPersistance configurationPersistance;
         private readonly IDryerHisctoricalValuesPersistance hisctoricalPersistance;
         private readonly IModbusControllerCommunicator controllersCommunicator;
@@ -43,16 +44,32 @@ namespace Dryer_Server.Core
             {2, 17},
         };
 
-        public Main(IUiInterface ui)
+        public Main(IUiInterface ui, 
+            IDryerConfigurationPersistance dryerConfigurationPersistance, 
+            IDryerHisctoricalValuesPersistance dryerHisctoricalValuesPersistance, 
+            IAutoControlPersistance autoControlPersistance,
+            ITimeBasedAutoControlPersistance timeBasedAutoControlPersistance, 
+            ISerialModbusChamberListener serialModbusChamberListener, 
+            IModbusControllerCommunicator modbusControllerCommunicator)
         {
             this.ui = ui;
-            modbusListener = new SerialModbusChamberListener("COM10");
-            var persistance = new SqlitePersistanceManager();
-            configurationPersistance = persistance;
-            hisctoricalPersistance = persistance;
-            autoControlPersistence = persistance;
-            controllersCommunicator = new ControllersCommunicator("COM12");
+            configurationPersistance = dryerConfigurationPersistance;
+            hisctoricalPersistance = dryerHisctoricalValuesPersistance;
+            autoControlPersistence = autoControlPersistance;
+            this.timeBasedAutoControlPersistance = timeBasedAutoControlPersistance;
+            modbusListener = serialModbusChamberListener;
+            controllersCommunicator = modbusControllerCommunicator;
         }
+
+        public Main(IUiInterface ui, SqlitePersistanceManager persistanceManager, PortSettings listenerPort, PortSettings controllersPort)
+            : this(ui, 
+                  persistanceManager, 
+                  persistanceManager, 
+                  persistanceManager, 
+                  persistanceManager,
+                  new SerialModbusChamberListener(listenerPort), 
+                  new ControllersCommunicator(controllersPort))
+        { }
 
         public async Task InitializeAsync()
         {
@@ -102,11 +119,10 @@ namespace Dryer_Server.Core
             await ui.InitializationFinishedAsync(lastValues, initWents, initRoofs);
         }
 
-        private void InitializeChamberTimeBasedAutoControl(Chamber chamber)
+        private void InitializeChamberTimeBasedAutoControl(IAutoControlledChamber chamber)
         {
-            var autoControlledChamber = chamber as IAutoControlledChamber;
-            if (autoControlledChamber.IsAutoControl)
-                timeBasedAutoControlPersistance.LoadTimeBasedForChamber(autoControlledChamber);
+            if (chamber.IsAutoControl)
+                timeBasedAutoControlPersistance.LoadTimeBasedForChamber(chamber);
         }
 
         public void Start()
@@ -119,7 +135,7 @@ namespace Dryer_Server.Core
         {
             modbusListener.Stop();
             controllersCommunicator.Stop();
-            timeBasedAutoControls.ForEach(t=>timeBasedAutoControlPersistance.Save(t));
+            timeBasedAutoControls.ForEach(t => timeBasedAutoControlPersistance.Save(t));
         }
 
         private void HandleExceptions(IEnumerable<Exception> exs)

@@ -12,12 +12,18 @@ namespace Dryer_Server.WebApi
     public class Startup
     {
         static readonly UiDataKeeper ui = new UiDataKeeper();
-        static readonly Dryer_Server.Core.Main main = new Dryer_Server.Core.Main(ui);
-        static readonly SqlitePersistanceManager persistanceManager = new SqlitePersistanceManager();
+        static Core.Main main;
+        static SqlitePersistanceManager persistanceManager;
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            persistanceManager = new SqlitePersistanceManager(configuration);
+            var listenerPort = new PortSettings();
+            var controllersPort = new PortSettings();
+            Configuration.GetSection("PortConfigurations").GetSection("Listener").Bind(listenerPort);
+            Configuration.GetSection("PortConfigurations").GetSection("Controllers").Bind(controllersPort);
+            main = new Core.Main(ui, persistanceManager, listenerPort, controllersPort);
         }
 
         public IConfiguration Configuration { get; }

@@ -29,18 +29,25 @@ namespace Dryer_Server.Serial_Modbus_Agent
 
         public ControllersCommunicator(string port, int baud = 9600, int dataBits = 8, char parity = 'N', int stopBits = 1)
         {
-            sp = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
-            var adapter = new SerialPortAdapter(sp);
-            adapter.ReadTimeout = 150;
-            adapter.WriteTimeout = 150;
-            var factory = new ModbusFactory();
-            rtu = factory.CreateRtuMaster(adapter);
-            rtu.Transport.Retries = 1;
-            rtu.Transport.ReadTimeout = 150;
-            rtu.Transport.WriteTimeout = 150;
-            rtu.Transport.WaitToRetryMilliseconds = 0;
+            if (!string.IsNullOrEmpty(port))
+            {
+                sp = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
+                var adapter = new SerialPortAdapter(sp);
+                adapter.ReadTimeout = 150;
+                adapter.WriteTimeout = 150;
+                var factory = new ModbusFactory();
+                rtu = factory.CreateRtuMaster(adapter);
+                rtu.Transport.Retries = 1;
+                rtu.Transport.ReadTimeout = 150;
+                rtu.Transport.WriteTimeout = 150;
+                rtu.Transport.WaitToRetryMilliseconds = 0;
+            }
             queue = new SendQueue(this);
         }
+
+        public ControllersCommunicator(PortSettings controllersPort)
+            :this(controllersPort.Port, controllersPort.Baud, controllersPort.DataBits, controllersPort.Parity, controllersPort.StopBits)
+        { }
 
         protected ControllersCommunicator(IModbusSerialMaster rtu)
         {
@@ -76,8 +83,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
         public void Start()
         {
             chambers.Sort((x, y) => x.Id.CompareTo(y.Id));
-            sp.Open();
-            Task.Run(Worker);
+            if (sp != null)
+            {
+                sp.Open();
+                Task.Run(Worker);
+            }
         }
 
         private void Worker()

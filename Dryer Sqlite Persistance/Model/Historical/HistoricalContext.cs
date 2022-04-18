@@ -26,8 +26,7 @@ namespace Dryer_Server.Persistance.Model.Historical
         public HistoricalContext CreateDbContext(string[] args) 
         { 
             var builder = new DbContextOptionsBuilder<HistoricalContext>();
-            var connectionString = Startup.GetHistoricalConnectionString();
-            builder.UseSqlite(connectionString); 
+            builder.UseSqlite("Data Source=./historic.db;Mode=ReadWriteCreate;Cache=Default;Foreign Keys=True"); 
             return new HistoricalContext(builder.Options); 
         } 
     }

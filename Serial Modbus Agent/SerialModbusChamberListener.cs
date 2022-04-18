@@ -22,10 +22,15 @@ namespace Dryer_Server.Serial_Modbus_Agent
         public SerialModbusChamberListener(string port, int baud = 9600, int dataBits = 8, char parity = 'N', int stopBits = 2)
         {
             if (!string.IsNullOrEmpty(port))
-                this.serialPort = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
+                serialPort = SerialPortCreator.Create(port, baud, dataBits, parity, stopBits);
             else
-                this.serialPort = null;
+                serialPort = null;
             modbusBuffer = new ModbusBuffer(msgSize, DetectReadTempHumm); 
+        }
+
+        public SerialModbusChamberListener(PortSettings listenerPort)
+            :this(listenerPort.Port, listenerPort.Baud, listenerPort.DataBits, listenerPort.Parity, listenerPort.StopBits)
+        {
         }
 
         public void Add(int slaveId, IValueReceiver<ChamberSensors> receiver)

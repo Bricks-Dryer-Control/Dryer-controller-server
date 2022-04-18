@@ -4,6 +4,7 @@ using Dryer_Server.Persistance.Model.Historical;
 using Dryer_Server.Persistance.Model.Settings;
 using Dryer_Sqlite.Persistance.Model.AutoControl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,26 +24,22 @@ namespace Dryer_Server.Persistance
         AutoControlContext GetAutoControlCtx() => new AutoControlContext(autocontrolCtxOptions);
         TimeBasedAutoControlContext GetTimeBasedAutoControlContext() => new TimeBasedAutoControlContext(timeBasedAutoControlOptions);
 
-        public SqlitePersistanceManager()
+        public SqlitePersistanceManager(IConfiguration config)
         {
             var settingsBuilder = new DbContextOptionsBuilder<SettingsContext>();
-            var settingsConnectionString = Startup.GetSettingsConnectionString();
-            settingsBuilder.UseSqlite(settingsConnectionString);
+            settingsBuilder.UseSqlite(config.GetConnectionString("SettingsContext"));
             settingsCtxOptions = settingsBuilder.Options;
 
             var historicalBuilder = new DbContextOptionsBuilder<HistoricalContext>();
-            var historicalConnectionString = Startup.GetHistoricalConnectionString();
-            historicalBuilder.UseSqlite(historicalConnectionString);
+            historicalBuilder.UseSqlite(config.GetConnectionString("HistoricalContext"));
             historicalCtxOptions = historicalBuilder.Options;
 
             var autocontrolBuilder = new DbContextOptionsBuilder<AutoControlContext>();
-            var autocontrolConnectionString = Startup.GetAutoControlConnectionString();
-            autocontrolBuilder.UseSqlite(autocontrolConnectionString);
+            autocontrolBuilder.UseSqlite(config.GetConnectionString("AutoControlContext"));
             autocontrolCtxOptions = autocontrolBuilder.Options;
 
             var timeBasedAutoControlBuilder= new DbContextOptionsBuilder<TimeBasedAutoControlContext>();
-            var timeBasedAutocontrolConnectionString = Startup.GetAutoControlConnectionString();
-            timeBasedAutoControlBuilder.UseSqlite(timeBasedAutocontrolConnectionString);
+            timeBasedAutoControlBuilder.UseSqlite(config.GetConnectionString("AutoControlContext"));
             timeBasedAutoControlOptions = timeBasedAutoControlBuilder.Options;
 
         }

@@ -21,8 +21,7 @@ namespace Dryer_Server.Persistance.Model.Settings
         public SettingsContext CreateDbContext(string[] args) 
         { 
             var builder = new DbContextOptionsBuilder<SettingsContext>();
-            var connectionString = Startup.GetSettingsConnectionString();
-            builder.UseSqlite(connectionString); 
+            builder.UseSqlite("Data Source=./settings.db;Mode=ReadWriteCreate;Cache=Default;Foreign Keys=True");
             return new SettingsContext(builder.Options); 
         } 
     }
