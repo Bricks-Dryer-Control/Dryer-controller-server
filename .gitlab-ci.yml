@@ -8,7 +8,7 @@ variables:
   SOURCE_CODE_PATH: '*/'
   DEPLOY_FOLDER: 'C:\DryerController\Server'
   SERVICE_NAME: 'DryerServer'
-  GIT_CLEAN_FLAGS: --exclude=packages/
+  GIT_CLEAN_FLAGS: -f --exclude=packages/
 
 stages:
   - test
