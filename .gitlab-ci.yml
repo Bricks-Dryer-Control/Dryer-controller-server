@@ -7,7 +7,7 @@ variables:
   PACKAGES_DIRECTORY: 'packages'
   SOURCE_CODE_PATH: '*/'
   DEPLOY_FOLDER: 'C:\DryerController\Server'
-  SERVICE_NAME: 'DryerServer'
+  SERVICE_NAME: 'dryer-server'
   GIT_CLEAN_FLAGS: -f --exclude=packages/
 
 stages:
