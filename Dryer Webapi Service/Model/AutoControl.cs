@@ -38,7 +38,7 @@ namespace Dryer_Server.WebApi.Model
                 MaxOutFlow = autoControl.MaxOutFlow,
                 Percent = autoControl.Percent,
                 Offset = autoControl.Offset,
-                Sets = autoControl.Sets.Select(s => (AutoControlItem)s),
+                Sets = autoControl.Sets?.Select(s => (AutoControlItem)s) ?? Array.Empty<AutoControlItem>(),
             };
         }
 

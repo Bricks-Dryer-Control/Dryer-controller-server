@@ -39,7 +39,7 @@ namespace Serial_Modbus_Agent_Tests
         public void ShouldDecodeFirst()
         {
             ChamberSensors result = null;
-            var listener = new SerialModbusChamberListener(null);
+            var listener = new SerialModbusChamberListener((string)null);
             var receiverMock = new Mock<IValueReceiver<ChamberSensors>>();
 
             receiverMock

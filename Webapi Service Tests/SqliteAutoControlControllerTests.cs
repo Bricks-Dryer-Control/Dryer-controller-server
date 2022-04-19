@@ -32,9 +32,8 @@ namespace Webapi_Service_Tests
             var result=controller.GetControlsWithoutItems().ToList();
 
             Assert.Equal(2,result.Count);
-            Assert.Contains("ctrl1", result.Select(ctrl=>ctrl.Name));
-            Assert.Contains("ctrl2", result.Select(ctrl => ctrl.Name));
-            Assert.Empty(result.SelectMany(ctrl=>ctrl.Sets));
+            Assert.Contains("ctrl1", result);
+            Assert.Contains("ctrl2", result);
         }
 
 
