@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer OldProgram Importer", "Dryer OldProgram Importer\Dryer OldProgram Importer.csproj", "{0D82ACAF-33FD-441A-AD12-6E03DB3529BF}"
 EndProject
@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Webapi Service", "Dry
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dryer Auto Control", "Dryer Auto Control\Dryer Auto Control.csproj", "{C17BC62C-FF44-43E9-92CE-87E2AFA82AD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webapi Service Tests", "Webapi Service Tests\Webapi Service Tests.csproj", "{833E3FC4-F2D1-4B99-A403-E1F749520F72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webapi Service Tests", "Webapi Service Tests\Webapi Service Tests.csproj", "{833E3FC4-F2D1-4B99-A403-E1F749520F72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dryer Simulator", "Dryer Simulator\Dryer Simulator.csproj", "{131557FE-C132-4A97-A7D1-86D57A02E809}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,6 +141,18 @@ Global
 		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x64.Build.0 = Release|Any CPU
 		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x86.ActiveCfg = Release|Any CPU
 		{833E3FC4-F2D1-4B99-A403-E1F749520F72}.Release|x86.Build.0 = Release|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Debug|x64.Build.0 = Debug|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Debug|x86.Build.0 = Debug|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Release|Any CPU.Build.0 = Release|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Release|x64.ActiveCfg = Release|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Release|x64.Build.0 = Release|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Release|x86.ActiveCfg = Release|Any CPU
+		{131557FE-C132-4A97-A7D1-86D57A02E809}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

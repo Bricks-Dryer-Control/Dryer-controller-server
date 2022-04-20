@@ -1,5 +1,6 @@
 using Dryer_Server.Interfaces;
 using Dryer_Server.Persistance;
+using Dryer_Simulator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +24,22 @@ namespace Dryer_Server.WebApi
             var controllersPort = new PortSettings();
             Configuration.GetSection("PortConfigurations").GetSection("Listener").Bind(listenerPort);
             Configuration.GetSection("PortConfigurations").GetSection("Controllers").Bind(controllersPort);
-            main = new Core.Main(ui, persistanceManager, listenerPort, controllersPort);
+            var simulatorConfig = Configuration.GetValue<string>("Simulator");
+            if (string.IsNullOrEmpty(simulatorConfig))
+            {
+                main = new Core.Main(ui, persistanceManager, listenerPort, controllersPort);
+            }
+            else
+            {
+                var simulator = Simulator.Get(simulatorConfig);
+                main = new Core.Main(ui, 
+                    persistanceManager, 
+                    persistanceManager, 
+                    persistanceManager, 
+                    persistanceManager, 
+                    simulator, 
+                    simulator);
+            }
         }
 
         public IConfiguration Configuration { get; }
