@@ -8,8 +8,9 @@ namespace Dryer_Server.Interfaces
         IEnumerable<string> GetAutoControls();
         void SaveDeactivateLatest(AutoControl autoControl);
         AutoControl Load(string name);
-        AutoControl GetControlWithItems(string name);
         IEnumerable<AutoControl> GetControls();
+        void SaveState(int chamberId, IAutoControl autoControl);
+        IEnumerable<(int chamberId, DateTime startUtc, AutoControl autoControl)> LoadStates();
         void Delete(string name);
     }
 }

@@ -9,7 +9,7 @@ namespace Dryer_Server.Interfaces
         void Stop();
         int SendActuators(int id, int actuator1, int actuator2, int actuator3);
         int SendSpecial(int id, int value);
-        int SendTimeBased(int id, IFlowInterpolator flowInterpolator);
+        int SendAuto(int id, IAutoValueGetter autoValueGetter);
         void StopAllActuators();
         bool isChamberListen(int id);
         void setChamberListen(int id, bool value);

@@ -75,9 +75,9 @@ namespace Dryer_Server.Serial_Modbus_Agent
             return queue.SendSpecial(id, value);
         }
 
-        public int SendTimeBased(int id, IFlowInterpolator interpolator)
+        public int SendAuto(int id, IAutoValueGetter autoValueGetter)
         {
-            return queue.SendTimeBased(id, interpolator);
+            return queue.SendAuto(id, autoValueGetter);
         }
 
         public void Start()

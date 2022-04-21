@@ -25,7 +25,7 @@ namespace Dryer_Server.WebApi.Controllers
 
         [HttpPost]
         [Route("Went/{no}")]
-        public AdditionalInfo Went(int no, int value)
+        public AdditionalInfo Went(int no, [FromBody]int value)
         {
             controller.ChangeWent(no, value);
             return data.GetAdditionalInfo();
@@ -33,7 +33,7 @@ namespace Dryer_Server.WebApi.Controllers
 
         [HttpPost]
         [Route("Roof/{no}")]
-        public AdditionalInfo Roof(int no, bool roof)
+        public AdditionalInfo Roof(int no, [FromBody]bool roof)
         {
             controller.ChangeRoof(no, roof);
             return data.GetAdditionalInfo();

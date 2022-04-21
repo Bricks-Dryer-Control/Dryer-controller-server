@@ -2,7 +2,7 @@ namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class CahmberValues
+        private record ChamberValues
         {
             public int InFlow {get;set;}
             public int OutFlow {get;set;}

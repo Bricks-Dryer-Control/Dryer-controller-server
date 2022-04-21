@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Dryer_Simulator
+namespace Dryer_Server.Dryer_Simulator
 {
     public abstract class Simulator: ISimulator
     {
@@ -53,9 +53,9 @@ namespace Dryer_Simulator
             return queue.Count;
         }
 
-        public virtual int SendTimeBased(int id, IFlowInterpolator flowInterpolator)
+        public int SendAuto(int id, IAutoValueGetter autoValueGetter)
         {
-            Console.WriteLine($"Chamber {id} queued interpolator");
+            Console.WriteLine($"Send Auto {id} should {autoValueGetter.ShouldSend}: {autoValueGetter.GetValues()}");
             queue.Enqueue(id);
             return queue.Count;
         }
@@ -75,6 +75,7 @@ namespace Dryer_Simulator
         {
             Console.WriteLine("Stop all");
         }
+
         protected record StatusReceiver
         {
             public ChamberConfiguration chamber;

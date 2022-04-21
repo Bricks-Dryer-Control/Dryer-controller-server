@@ -10,6 +10,7 @@ namespace Dryer_Server.Persistance.Model.AutoControl
 
         public virtual DbSet<DbAutoControlItem> Sets { get; set; } 
         public virtual DbSet<DbAutoControl> Definitions { get; set; }
+        public virtual DbSet<DbAutoControlState> States { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

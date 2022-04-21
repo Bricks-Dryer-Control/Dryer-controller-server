@@ -7,26 +7,29 @@ namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IAutoControlledChamber
+        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>
         {
             private int Id => Configuration.Id;
             private ChamberConvertedStatus currentStatus;
             private readonly Main parrent;
-            public CahmberValues Sets { get; } = new CahmberValues();
+            public ChamberValues Sets { get; } = new ChamberValues();
             public ChamberConfiguration Configuration { get; }
             public AdditionalConfig AdditionalConfig { get; }
-            public Boolean Listen 
+            public IAutoControl CurrentAutoControl { get; private set; }
+
+            public bool Listen 
             { 
                 get => isListen(Id); 
                 set => setListen(Id, value);
             }
 
-
-            public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional)
+            public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional, IAutoControl autoControl)
             {
                 Configuration = configuration;
                 this.parrent = parrent;
                 AdditionalConfig = additional;
+                CurrentAutoControl = autoControl;
+                autoControl?.SetUpSetValuesGetActuators(SetValuesGetActuators);
             }
 
             public void ValueReceived(ChamberSensors v)
@@ -150,6 +153,12 @@ namespace Dryer_Server.Core
                 return status.QueuePosition == null ? WorkingStatus.waiting : WorkingStatus.queued;
             }
 
+            internal void InitializeAutoControl()
+            {
+                if (currentStatus.IsAuto)
+                    CurrentAutoControl?.Start();
+            }
+
             private void TrySendToUi(List<Exception> exs, ChamberConvertedStatus status)
             {
                 try
@@ -193,6 +202,11 @@ namespace Dryer_Server.Core
                 };
             }
 
+            internal void DisposeAutoControl()
+            {
+                CurrentAutoControl?.Dispose();
+            }
+
             private void setListen(int id, bool value)
             {
                 parrent.controllersCommunicator.setChamberListen(id, value);
@@ -204,18 +218,26 @@ namespace Dryer_Server.Core
                 return parrent.controllersCommunicator.isChamberListen(id);
             }
 
-
-            bool IAutoControlledChamber.IsAutoControl => currentStatus.IsAuto;
-            bool IAutoControlledChamber.IsQueued => parrent.controllersCommunicator.IsChamberQueued(Configuration.Id);
-            int IAutoControlledChamber.CurrentInFlow => Sets.InFlow;
-            int IAutoControlledChamber.CurrentOutFlow => Sets.OutFlow;
-            int IAutoControlledChamber.CurrentThroughFlow => Sets.ThroughFlow;
-
-            int IAutoControlledChamber.Id => Configuration.Id;
-
-            void IAutoControlledChamber.AddToQueue(IFlowInterpolator interpolator)
+            public void StartNewAutomaticControl(AutoControl autoControlData, DateTime startUtc)
             {
-                parrent.controllersCommunicator.SendTimeBased(Id, interpolator);
+                CurrentAutoControl?.Dispose();
+                CurrentAutoControl = Dryer_Auto_Control.AutoControl.NewAutoControl(autoControlData, startUtc);
+                CurrentAutoControl.SetUpSetValuesGetActuators(SetValuesGetActuators);
+            }
+
+            public int[] SetValuesGetActuators(int inFlow, int outFlow, int throughFlow)
+            {
+                var actuators = new int[3];
+
+                actuators[Configuration.InFlowActuatorNo - 1] = inFlow;
+                actuators[Configuration.OutFlowActuatorNo - 1] = outFlow;
+                actuators[Configuration.ThroughFlowActuatorNo - 1] = throughFlow;
+
+                Sets.InFlow = inFlow;
+                Sets.OutFlow = outFlow;
+                Sets.ThroughFlow = throughFlow;
+
+                return actuators;
             }
         }
     }

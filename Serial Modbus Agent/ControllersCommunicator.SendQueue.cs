@@ -1,8 +1,7 @@
+using Dryer_Server.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dryer_Server.Interfaces;
-using NLog.LayoutRenderers.Wrappers;
 
 namespace Dryer_Server.Serial_Modbus_Agent
 {
@@ -19,19 +18,13 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 this.communicator = communicator;
             }
 
-            internal int SendTimeBased(int id, IFlowInterpolator interpolator)
+            internal int SendAuto(int id, IAutoValueGetter valueGetter)
             {
-                var newSend = new InterpolatedActuators(id, interpolator);
+                var newSend = new AutoActuators(id, valueGetter);
                 lock (ItemsLock)
                 {
-                    var item=Items.SingleOrDefault(i=>i.No==id && i is InterpolatedActuators);
-                    if (item == null)
-                    {
-                        Items.Add(newSend);
-                    }
-                    else
-                        (item as InterpolatedActuators).Interpolator = interpolator;
-
+                    Items.RemoveAll(i => i.No == id && (i is INormalActuators));
+                    Items.Add(newSend);
                     return Items.Count;
                 }
             }
@@ -41,7 +34,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 var newSend = new NormalActuators(id, actuator1, actuator2, actuator3);
                 lock (ItemsLock)
                 {
-                    Items.RemoveAll(i => i.No == id && i is NormalActuators);
+                    Items.RemoveAll(i => i.No == id && i is INormalActuators);
                     Items.Add(newSend);
                     return Items.Count;
                 }
@@ -113,28 +106,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 void SendQueue(ControllersCommunicator communicator);
             }
 
-            private class InterpolatedActuators : IQueueItem
+            partial interface INormalActuators : IQueueItem
             {
-                private readonly byte no;
-                public IFlowInterpolator Interpolator { get; set; }
-
-                public InterpolatedActuators(int no,IFlowInterpolator interpolator)
-                {
-                    this.Interpolator = interpolator;
-                    this.no = (byte)no;
-                }
-
-
-                public int No => no;
-                public void SendQueue(ControllersCommunicator communicator)
-                {
-                    var interpolated=Interpolator.InterpolateFlow();
-                    ushort[] actuators = { (ushort)interpolated.InFlow, (ushort)interpolated.OutFlow, (ushort)interpolated.ThroughFlow };
-                    communicator.WriteActuators(no, actuators);
-                }
             }
 
-            private class NormalActuators : IQueueItem
+            private class NormalActuators : INormalActuators
             {
                 private byte no;
                 private ushort[] actuators;
@@ -150,6 +126,30 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 public void SendQueue(ControllersCommunicator communicator)
                 {
                     communicator.WriteActuators(no, actuators);
+                }
+            }
+
+            private class AutoActuators : INormalActuators
+            {
+                private byte no;
+                private IAutoValueGetter valueGetter;
+
+                public AutoActuators(int no, IAutoValueGetter valueGetter)
+                {
+                    this.no = (byte)no;
+                    this.valueGetter = valueGetter;
+                }
+
+                public int No => no;
+
+                public void SendQueue(ControllersCommunicator communicator)
+                {
+                    if (valueGetter.ShouldSend)
+                    {
+                        int[] v = valueGetter.GetValues();
+                        var actuators = new ushort[] { (ushort)v[0], (ushort)v[1], (ushort)v[2] };
+                        communicator.WriteActuators(no, actuators);
+                    }
                 }
             }
 

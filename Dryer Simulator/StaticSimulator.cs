@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 
-namespace Dryer_Simulator
+namespace Dryer_Server.Dryer_Simulator
 {
     internal class StaticSimulator : Simulator
     {

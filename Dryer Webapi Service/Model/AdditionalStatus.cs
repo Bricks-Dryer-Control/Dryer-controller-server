@@ -3,7 +3,9 @@ namespace Dryer_Server.WebApi.Model
     public record AdditionalStatus
     {
         public AdditionalStatus()
-        { }
+        { 
+            status = new ChamberStatus();
+        }
 
         public AdditionalStatus(Interfaces.AdditionalStatus iStatus)
         {

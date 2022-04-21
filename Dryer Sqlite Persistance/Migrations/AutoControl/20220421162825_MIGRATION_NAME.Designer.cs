@@ -3,14 +3,16 @@ using System;
 using Dryer_Server.Persistance.Model.AutoControl;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Dryer_Sqlite_Persistance.Migrations.AutoControl
 {
     [DbContext(typeof(AutoControlContext))]
-    partial class AutoControlContextModelSnapshot : ModelSnapshot
+    [Migration("20220421162825_MIGRATION_NAME")]
+    partial class MIGRATION_NAME
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -9,7 +9,7 @@ namespace Dryer_Server.WebApi.Model
         public ChamberInfo()
         { }
 
-        public ChamberInfo(int id, ChamberConvertedStatus status, ChamberSensors sensors)
+        public ChamberInfo(int id, ChamberConvertedStatus status, ChamberSensors sensors, IAutoControl autoControl)
         {
             No = id;
             ReadingTime = startTimeUtc;
@@ -34,6 +34,23 @@ namespace Dryer_Server.WebApi.Model
                 Working = status.Working,
                 IsActive = status.IsListening,
             };
+
+            if (autoControl != null)
+            {
+                AutoControlStatus = new AutoControlStatus
+                {
+                    Name = autoControl.Name,
+                    CurrentTime = DateTime.UtcNow - autoControl.StartDateUtc,
+                };
+            } 
+            else
+            {
+                AutoControlStatus = new AutoControlStatus()
+                {
+                    Name = string.Empty,
+                    CurrentTime = TimeSpan.Zero,
+                };
+            }
         }
 
         public int No { get; set; }
@@ -43,5 +60,6 @@ namespace Dryer_Server.WebApi.Model
         public ChamberValues ActualActuators { get; set; }
         public ChamberValues SetActuators { get; set; }
         public ChamberStatus Status { get; set; }
+        public AutoControlStatus AutoControlStatus { get; set; }
     }
 }

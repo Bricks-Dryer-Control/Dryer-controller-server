@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dryer_Server.WebApi.Model;
 using AutoControl = Dryer_Server.WebApi.Model.AutoControl;
 
 namespace Dryer_Server.WebApi.Controllers
@@ -31,7 +30,7 @@ namespace Dryer_Server.WebApi.Controllers
         [Route("{name}")]
         public AutoControl GetControlWithItems(string name)
         {
-            return persistence.GetControlWithItems(name);
+            return persistence.Load(name);
         }
 
         [HttpDelete]
@@ -65,7 +64,7 @@ namespace Dryer_Server.WebApi.Controllers
         {
             try
             {
-                mainController.StartAutoControl(requestBody.ChamberId, requestBody.Name, requestBody.StartPoint, requestBody.CheckingDelay);
+                mainController.StartAutoControl(requestBody.ChamberId, requestBody.Name, requestBody.StartPoint);
                 return Ok(null);
             }
             catch (Exception e)
@@ -79,7 +78,6 @@ namespace Dryer_Server.WebApi.Controllers
             public string Name { get; set; }
             public int ChamberId { get; set; }
             public TimeSpan StartPoint { get; set; }
-            public TimeSpan CheckingDelay { get; set; }
         }
 
     }

@@ -116,42 +116,41 @@ namespace Dryer_Server.WebApi
             };
         }
 
-        public async Task InitializationFinishedAsync(IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> initializationData, IEnumerable<Interfaces.AdditionalStatus> initializationWents, IEnumerable<(Interfaces.AdditionalStatus Roof, Interfaces.AdditionalStatus Through)> initializationRoofs)
+        public async Task InitializationFinishedAsync(IEnumerable<ChamberInitializationData> initializationData, int wentQty, int roofQty)
         {
-            var initializeAdditionalInfo = Task.Run(() => InitializeAdditionalInfo(initializationWents, initializationRoofs));
+            var initializeAdditionalInfo = Task.Run(() => InitializeAdditionalInfo(wentQty, roofQty));
             var initializeChambers = Task.Run(() => InitializeChambers(initializationData));
 
             await initializeAdditionalInfo;
             await initializeChambers;
         }
 
-        private void InitializeChambers(IEnumerable<(int id, ChamberConvertedStatus status, ChamberSensors sensors)> initializationData)
+        private void InitializeChambers(IEnumerable<ChamberInitializationData> initializationData)
         {
             var chamberList = initializationData
-                .Select(((int id, ChamberConvertedStatus status, ChamberSensors sensors) x) 
-                    => new ChamberInfo(x.id, x.status ?? DefaultStatus, x.sensors ?? DefaultSensors))
+                .Select(x => new ChamberInfo(x.Id, x.Status ?? DefaultStatus, x.Sensors ?? DefaultSensors, x.AutoControl))
                 .ToList();
             
             var maxChamber = chamberList.Select(c => c.No).Max();
             chambers = new ChamberInfo[maxChamber];
             for (var i = 0; i < maxChamber; i++)
-                chambers[i] = chamberList.FirstOrDefault(c => c.No == i + 1) ?? new ChamberInfo(i+1, DefaultStatus, DefaultSensors);
+                chambers[i] = chamberList.FirstOrDefault(c => c.No == i + 1) ?? new ChamberInfo(i+1, DefaultStatus, DefaultSensors, null);
         }
 
-        private void InitializeAdditionalInfo(IEnumerable<Interfaces.AdditionalStatus> initializationWents, IEnumerable<(Interfaces.AdditionalStatus Roof, Interfaces.AdditionalStatus Through)> initializationRoofs)
+        private void InitializeAdditionalInfo(int wentQty, int roofQty)
         {
-            var wents = initializationWents.Select(w => new Model.AdditionalStatus(w)).ToArray();
-            var roofs = initializationRoofs
-                .Select(r => new AdditionalRoofInfo
-                {
-                    roof = new Model.AdditionalStatus(r.Roof),
-                    through = new Model.AdditionalStatus(r.Through),
-                })
-                .ToArray();
             additionalInfo = new AdditionalInfo
             {
-                Roofs = roofs,
-                Wents = wents,
+                Roofs = Enumerable.Range(0, roofQty)
+                    .Select(_ => new AdditionalRoofInfo
+                    {
+                        roof = new Model.AdditionalStatus(),
+                        through = new Model.AdditionalStatus(),
+                    })
+                    .ToArray(),
+                Wents = Enumerable.Range(0, wentQty)
+                    .Select(_ => new Model.AdditionalStatus())
+                    .ToArray()
             };
         }
 

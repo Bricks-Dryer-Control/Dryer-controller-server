@@ -19,8 +19,6 @@ namespace Dryer_Server.WebApi.Controllers
             this.controller = controller;
         }
 
-        static Random rnd = new Random();
-
         [HttpGet]
         public IEnumerable<ChamberInfo> Get()
         {

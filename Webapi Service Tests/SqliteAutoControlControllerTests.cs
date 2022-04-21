@@ -6,7 +6,6 @@ using Dryer_Server.Persistance.Model.Settings;
 using Dryer_Server.WebApi.Controllers;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Dryer_Sqlite.Persistance.Model.AutoControl;
 using Xunit;
 
 namespace Webapi_Service_Tests
@@ -18,9 +17,9 @@ namespace Webapi_Service_Tests
         public SqliteAutoControlControllerTests() :
             base(new DbContextOptionsBuilder<AutoControlContext>().UseSqlite("Filename=Test.db").Options)
         {
-            persistence= new SqlitePersistanceManager(ContextOptions,
-                new DbContextOptions<HistoricalContext>(), new DbContextOptions<SettingsContext>(), new DbContextOptions<TimeBasedAutoControlContext>());
-            
+            persistence = new SqlitePersistanceManager(ContextOptions,
+                new DbContextOptions<HistoricalContext>(), 
+                new DbContextOptions<SettingsContext>());
         }
 
 

@@ -1,6 +1,6 @@
 using Dryer_Server.Interfaces;
 using Dryer_Server.Persistance;
-using Dryer_Simulator;
+using Dryer_Server.Dryer_Simulator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +33,6 @@ namespace Dryer_Server.WebApi
             {
                 var simulator = Simulator.Get(simulatorConfig);
                 main = new Core.Main(ui, 
-                    persistanceManager, 
                     persistanceManager, 
                     persistanceManager, 
                     persistanceManager, 
