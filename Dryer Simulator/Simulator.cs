@@ -55,7 +55,7 @@ namespace Dryer_Server.Dryer_Simulator
 
         public int SendAuto(int id, IAutoValueGetter autoValueGetter)
         {
-            Console.WriteLine($"Send Auto {id} should {autoValueGetter.ShouldSend}: {autoValueGetter.GetValues()}");
+            Console.WriteLine($"Send Auto {id} should {autoValueGetter.ShouldSend}: {string.Join(' ',autoValueGetter.GetValues()) }");
             queue.Enqueue(id);
             return queue.Count;
         }

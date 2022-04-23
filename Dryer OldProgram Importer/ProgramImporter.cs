@@ -22,7 +22,7 @@ namespace Dryer_OldProgram_Importer
                 string line;
                 while((line = fileContent.ReadLine()) != null)
                 {
-                    if (TryGetAotControlItem(line, out var item))
+                    if (TryGetAutoControlItem(line, out var item))
                         items.Add(item);
                 }
             }
@@ -34,17 +34,17 @@ namespace Dryer_OldProgram_Importer
                 var values = line.Split('\t');
                 if (values.Length == 12
                     && float.TryParse(values[0], out var setTime)
-                    && float.TryParse(values[0], out var tempDiff)
-                    && float.TryParse(values[0], out var controlDiff)
-                    && float.TryParse(values[0], out var controlType)
-                    && float.TryParse(values[0], out var kp)
-                    && float.TryParse(values[0], out var ki)
-                    && float.TryParse(values[0], out var minInFlow)
-                    && float.TryParse(values[0], out var maxInFlow)
-                    && float.TryParse(values[0], out var minOutFlow)
-                    && float.TryParse(values[0], out var maxOutFlow)
-                    && float.TryParse(values[0], out var percent)
-                    && float.TryParse(values[0], out var offset))
+                    && float.TryParse(values[1], out var tempDiff)
+                    && float.TryParse(values[2], out var controlDiff)
+                    && float.TryParse(values[3], out var controlType)
+                    && float.TryParse(values[4], out var kp)
+                    && float.TryParse(values[5], out var ki)
+                    && float.TryParse(values[6], out var minInFlow)
+                    && float.TryParse(values[7], out var maxInFlow)
+                    && float.TryParse(values[8], out var minOutFlow)
+                    && float.TryParse(values[9], out var maxOutFlow)
+                    && float.TryParse(values[10], out var percent)
+                    && float.TryParse(values[11], out var offset))
                 {
                     var autoControl = new AutoControl
                     {
@@ -52,7 +52,7 @@ namespace Dryer_OldProgram_Importer
                         TimeToSet = TimeSpan.FromSeconds(setTime),
                         TemperatureDifference = tempDiff,
                         ControlDifference = (int)controlDiff,
-                        ControlType = (AutoControlType)((int)controlType),
+                        ControlType = AutoControlType.PedefinedSettings,
                         Kp = kp,
                         Ki = ki,
                         MinInFlow = (int)minInFlow,
@@ -69,7 +69,7 @@ namespace Dryer_OldProgram_Importer
             }
         }
 
-        private bool TryGetAotControlItem(string line, out AutoControlItem item)
+        private bool TryGetAutoControlItem(string line, out AutoControlItem item)
         {
 
             var values = line.Split('\t');

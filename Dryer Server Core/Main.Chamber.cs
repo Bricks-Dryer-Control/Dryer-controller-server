@@ -7,7 +7,7 @@ namespace Dryer_Server.Core
 {
     public partial class Main
     {
-        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>
+        private class Chamber : IValueReceiver<ChamberSensors>, IValueReceiver<ChamberControllerStatus>, IAutoControlledChamber
         {
             private int Id => Configuration.Id;
             private ChamberConvertedStatus currentStatus;
@@ -23,13 +23,17 @@ namespace Dryer_Server.Core
                 set => setListen(Id, value);
             }
 
+            ChamberConvertedStatus IAutoControlledChamber.ConvertedStatus => currentStatus;
+
+            ChamberSensors IAutoControlledChamber.ChamberSensors => throw new NotImplementedException();
+
             public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional, IAutoControl autoControl)
             {
                 Configuration = configuration;
                 this.parrent = parrent;
                 AdditionalConfig = additional;
                 CurrentAutoControl = autoControl;
-                autoControl?.SetUpSetValuesGetActuators(SetValuesGetActuators);
+                autoControl?.SetChamber(this);
             }
 
             public void ValueReceived(ChamberSensors v)
@@ -155,7 +159,7 @@ namespace Dryer_Server.Core
 
             internal void InitializeAutoControl()
             {
-                if (currentStatus.IsAuto)
+                if (currentStatus != null && currentStatus.IsAuto)
                     CurrentAutoControl?.Start();
             }
 
@@ -221,8 +225,13 @@ namespace Dryer_Server.Core
             public void StartNewAutomaticControl(AutoControl autoControlData, DateTime startUtc)
             {
                 CurrentAutoControl?.Dispose();
-                CurrentAutoControl = Dryer_Auto_Control.AutoControl.NewAutoControl(autoControlData, startUtc);
-                CurrentAutoControl.SetUpSetValuesGetActuators(SetValuesGetActuators);
+                CurrentAutoControl = Dryer_Auto_Control.AutoControl.NewAutoControl(autoControlData, startUtc, this);
+                parrent.ui.AutoControlChanged(Id, CurrentAutoControl);
+            }
+
+            public void AutoControlChanged()
+            {
+                parrent.ui.AutoControlChanged(Id, CurrentAutoControl);
             }
 
             public int[] SetValuesGetActuators(int inFlow, int outFlow, int throughFlow)
@@ -238,6 +247,11 @@ namespace Dryer_Server.Core
                 Sets.ThroughFlow = throughFlow;
 
                 return actuators;
+            }
+
+            void IAutoControlledChamber.EnqueueAutoControl(IAutoValueGetter valueGetter)
+            {
+                parrent.EnqueueAutoControl(Id, valueGetter);
             }
         }
     }

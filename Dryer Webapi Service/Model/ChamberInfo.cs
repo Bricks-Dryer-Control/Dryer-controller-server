@@ -37,18 +37,16 @@ namespace Dryer_Server.WebApi.Model
 
             if (autoControl != null)
             {
-                AutoControlStatus = new AutoControlStatus
+                AutoControlStatus = new AutoControlStatus(autoControl.StartDateUtc)
                 {
                     Name = autoControl.Name,
-                    CurrentTime = DateTime.UtcNow - autoControl.StartDateUtc,
                 };
             } 
             else
             {
-                AutoControlStatus = new AutoControlStatus()
+                AutoControlStatus = new AutoControlStatus(DateTime.UtcNow)
                 {
                     Name = string.Empty,
-                    CurrentTime = TimeSpan.Zero,
                 };
             }
         }

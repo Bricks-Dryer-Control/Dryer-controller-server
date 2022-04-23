@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Dryer_OldProgram_Importer;
 
 namespace Dryer_Server.WebApi
 {
@@ -50,6 +51,7 @@ namespace Dryer_Server.WebApi
             services.AddSingleton(typeof(IMainController), main);
             services.AddSingleton(typeof(IUiDataKeeper), ui);
             services.AddSingleton(typeof(IAutoControlPersistance), persistanceManager);
+            services.AddSingleton(typeof(IProgramImporter), new ProgramImporter(persistanceManager));
             services.AddMvc().AddNewtonsoftJson();
             services.AddCors((options =>
             {

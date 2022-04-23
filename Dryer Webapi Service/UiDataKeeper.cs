@@ -72,7 +72,7 @@ namespace Dryer_Server.WebApi
             };
             chamber.Status = new ChamberStatus
             {
-                IsAuto = false,
+                IsAuto = chamber.Status.IsAuto,
                 QueuePosition = values.QueuePosition,
                 Working = values.Working,
                 IsActive = values.IsListening,
@@ -167,6 +167,15 @@ namespace Dryer_Server.WebApi
         public AdditionalInfo GetAdditionalInfo()
         {
             return additionalInfo;
+        }
+
+        public void AutoControlChanged(int no, IAutoControl autoControl)
+        {
+            chambers[no - 1].AutoControlStatus = new AutoControlStatus(autoControl.StartDateUtc)
+            {
+                Name = autoControl.Name,
+            };
+            chambers[no - 1].Status.IsAuto = autoControl.Active;
         }
     }
 }

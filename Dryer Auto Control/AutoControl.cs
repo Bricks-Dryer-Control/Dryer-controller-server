@@ -7,26 +7,27 @@ namespace Dryer_Server.Dryer_Auto_Control
     public abstract class AutoControl : IAutoControl
     {
         protected readonly AutoControlData autoControlData;
-        protected Func<int, int, int, int[]> SetValuesGetActuators;
+        protected IAutoControlledChamber chamber;
         public string Name => autoControlData.Name;
         public DateTime StartDateUtc { get; protected set; }
         public abstract bool Active { get; }
         public abstract bool ShouldSend { get; }
 
-        public static AutoControl NewAutoControl(AutoControlData autoControlData, DateTime startUtc, Func<ChamberConvertedStatus> getActualStatus = null, Func<ChamberSensors> getActualSsensors = null)
+        public static AutoControl NewAutoControl(AutoControlData autoControlData, DateTime startUtc, IAutoControlledChamber chamber)
         {
             switch (autoControlData.ControlType)
             {
                 case AutoControlType.PedefinedSettings:
-                    return new PedefinedSettingsAutoControl(autoControlData, startUtc, getActualStatus);
+                    return new PedefinedSettingsAutoControl(autoControlData, startUtc, chamber);
                 default:
                     return null;
             }
         }
 
-        public AutoControl(AutoControlData autoControlData, DateTime startDateUtc)
+        public AutoControl(AutoControlData autoControlData, DateTime startDateUtc, IAutoControlledChamber chamber)
         {
             this.autoControlData = autoControlData ?? throw new ArgumentNullException(nameof(autoControlData));
+            this.chamber = chamber;
             StartDateUtc = startDateUtc;
         }
 
@@ -35,9 +36,9 @@ namespace Dryer_Server.Dryer_Auto_Control
         public abstract void Dispose();
         public abstract int[] GetValues();
 
-        public void SetUpSetValuesGetActuators(Func<int, int, int, int[]> setValuesGetActuators)
+        public void SetChamber(IAutoControlledChamber chamber)
         {
-            SetValuesGetActuators = setValuesGetActuators;
+            this.chamber = chamber;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Dryer_Server.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 
 namespace Dryer_Server.Dryer_Auto_Control
@@ -17,18 +18,17 @@ namespace Dryer_Server.Dryer_Auto_Control
         };
 
         private AutoControlItem last;
+        private bool active = false;
         private readonly IEnumerator<AutoControlItem> enumerator;
-        private readonly Func<ChamberConvertedStatus> GetActualStatus;
 
         public bool IsOnQueue { get; private set; } = false;
 
-        public override bool Active => timer.Enabled;
+        public override bool Active => active;
 
         public override bool ShouldSend => ShouldSendToController();
 
-        public PedefinedSettingsAutoControl(Interfaces.AutoControl autoControlData, DateTime startUtc, Func<ChamberConvertedStatus> getActualStatus) : base(autoControlData, startUtc)
+        public PedefinedSettingsAutoControl(Interfaces.AutoControl autoControlData, DateTime startUtc, IAutoControlledChamber chamber) : base(autoControlData, startUtc, chamber)
         {
-            GetActualStatus = getActualStatus ?? throw null;
             timer.Elapsed += Timer_Elapsed;
             enumerator = autoControlData.Sets.GetEnumerator();
             enumerator.MoveNext();
@@ -42,13 +42,17 @@ namespace Dryer_Server.Dryer_Auto_Control
 
         public override void Start()
         {
+            active = true;
             Execute();
             timer.Start();
+            chamber.AutoControlChanged();
         }
 
         public override void Stop()
         {
+            active = false;
             timer.Stop();
+            chamber.AutoControlChanged();
         }
 
         public override void Dispose()
@@ -76,7 +80,7 @@ namespace Dryer_Server.Dryer_Auto_Control
 
         private void GetCurrentEstimates(TimeSpan now, out int inFlow, out int outFlow, out int throughFlow)
         {
-            while (now > enumerator.Current.Time)
+            while (!finished && now > enumerator.Current.Time)
             {
                 last = enumerator.Current;
                 if (!enumerator.MoveNext())
@@ -84,6 +88,15 @@ namespace Dryer_Server.Dryer_Auto_Control
                     finished = true;
                     timer.Stop();
                 }
+            }
+
+            if (finished)
+            {
+                last = autoControlData.Sets.Last();
+                inFlow = last.InFlow;
+                outFlow = last.OutFlow;
+                throughFlow = last.ThroughFlow;
+                return;
             }
 
             var next = enumerator.Current;
@@ -104,7 +117,7 @@ namespace Dryer_Server.Dryer_Auto_Control
         private bool CheckSetValues(int inFlow, int outFlow, int throughFlow)
         {
             var d = autoControlData.ControlDifference;
-            var status = GetActualStatus();
+            var status = chamber.ConvertedStatus;
 
             if (inFlow < autoControlData.MinInFlow)
                 inFlow = autoControlData.MinInFlow;
@@ -129,7 +142,7 @@ namespace Dryer_Server.Dryer_Auto_Control
         private void PutOnQueue()
         {
             IsOnQueue = true;
-            throw new NotImplementedException();
+            chamber.EnqueueAutoControl(this);
         }
 
         private bool ShouldSendToController()
@@ -142,7 +155,7 @@ namespace Dryer_Server.Dryer_Auto_Control
         {
             var now = DateTime.UtcNow - StartDateUtc;
             GetCurrentEstimates(now, out var inFlow, out var outFlow, out var throughFlow);
-            return SetValuesGetActuators(inFlow, outFlow, throughFlow);
+            return chamber.SetValuesGetActuators(inFlow, outFlow, throughFlow);
         }
     }
 }

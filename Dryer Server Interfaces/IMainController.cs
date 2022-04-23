@@ -17,5 +17,6 @@ namespace Dryer_Server.Interfaces
         void ChangeChamberReading(int no, bool value);
         HistoryResponse GetHistory(int no, DateTime from, DateTime to);
         void StartAutoControl(int chamberId, string name, TimeSpan startPoint);
+        void TurnAutoControl(int no, bool value);
     }
 }

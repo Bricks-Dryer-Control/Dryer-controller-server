@@ -147,13 +147,20 @@ namespace Dryer_Server.Core
 
         private Dryer_Auto_Control.AutoControl GetAutoControll(IEnumerable<(int chamberId, DateTime startUtc, AutoControl autoControl)> autoControls, int id)
         {
-            var existing = autoControls
-                .Select(x => new (int chamberId, DateTime startUtc, AutoControl autoControl)?(x))
-                .FirstOrDefault(x => x.Value.chamberId == id);
-            if (existing.HasValue)
+            try
             {
-                (int chamberId, DateTime startUtc, AutoControl autoControl) = existing.Value;
-                return Dryer_Auto_Control.AutoControl.NewAutoControl(autoControl, startUtc);
+                var existing = autoControls
+                    .Select(x => new (int chamberId, DateTime startUtc, AutoControl autoControl)?(x))
+                    .FirstOrDefault(x => x.Value.chamberId == id);
+                if (existing.HasValue)
+                {
+                    (int chamberId, DateTime startUtc, AutoControl autoControl) = existing.Value;
+                    return Dryer_Auto_Control.AutoControl.NewAutoControl(autoControl, startUtc, null);
+                }
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Could not load auto control for {id}\n{ex}");
             }
 
             return null;
@@ -214,6 +221,11 @@ namespace Dryer_Server.Core
             controllersCommunicator.SendSpecial(throughNo, throughSet);
         }
 
+        public void EnqueueAutoControl(int no, IAutoValueGetter valueGetter)
+        {
+            controllersCommunicator.SendAuto(no, valueGetter);
+        }
+
         public void StopAll()
         {
             controllersCommunicator.StopAllActuators();
@@ -254,6 +266,15 @@ namespace Dryer_Server.Core
             var autoControl = autoControlPersistence.Load(name);
             chamber.StartNewAutomaticControl(autoControl, startUtc);
             autoControlPersistence.SaveState(chamberId, chamber.CurrentAutoControl);
+        }
+
+        public void TurnAutoControl(int no, bool value)
+        {
+            var chamber = ChambersDictionary[no];
+            if (value)
+                chamber.CurrentAutoControl?.Start();
+            else
+                chamber.CurrentAutoControl?.Stop();
         }
 
         record RoofConfig

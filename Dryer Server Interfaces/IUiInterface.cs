@@ -13,5 +13,6 @@ namespace Dryer_Server.Interfaces
         void WentChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status);
         void RoofThroughChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status);
         void RoofRoofChanged(int no, int position, int set, int? queuePosition, ChamberConvertedStatus.WorkingStatus status);
+        void AutoControlChanged(int id, IAutoControl autoControl);
     }
 }

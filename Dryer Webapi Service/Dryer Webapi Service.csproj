@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dryer OldProgram Importer\Dryer OldProgram Importer.csproj" />
     <ProjectReference Include="..\Dryer Server Interfaces\Dryer Server Interfaces.csproj" />
     <ProjectReference Include="..\Dryer Server Core\Dryer Server Core.csproj" />
     <ProjectReference Include="..\Dryer Simulator\Dryer Simulator.csproj" />

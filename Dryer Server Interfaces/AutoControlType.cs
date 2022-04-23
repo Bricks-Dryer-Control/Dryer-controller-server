@@ -11,12 +11,4 @@ namespace Dryer_Server.Interfaces
         WithPercent = 2^8,
         WithFilter = 2^9,
     }
-
-    public static class AutoControlTypeHelper
-    {
-        public static bool IsTemperatureBased(this AutoControlType type)
-        {
-            return type != AutoControlType.PedefinedSettings;
-        }
-    }
 }

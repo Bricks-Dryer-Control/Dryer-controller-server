@@ -59,6 +59,14 @@ namespace Dryer_Server.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("{no}/turn")]
+        public ActionResult Turn(int no, [FromBody] bool value)
+        {
+            mainController.TurnAutoControl(no, value);
+            return Ok();
+        }
+
+        [HttpPost]
         [Route("start")]
         public ObjectResult StartAutoControl([FromBody] StartAutoControlRequestBody requestBody)
         {
@@ -79,6 +87,5 @@ namespace Dryer_Server.WebApi.Controllers
             public int ChamberId { get; set; }
             public TimeSpan StartPoint { get; set; }
         }
-
     }
 }

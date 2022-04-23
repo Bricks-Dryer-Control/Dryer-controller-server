@@ -10,6 +10,6 @@ namespace Dryer_Server.Interfaces
 
         void Start();
         void Stop();
-        void SetUpSetValuesGetActuators(Func<int, int, int, int[]> setValuesGetActuators);
+        void SetChamber(IAutoControlledChamber chamber);
     }
 }
