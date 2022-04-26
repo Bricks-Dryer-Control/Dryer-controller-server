@@ -262,7 +262,7 @@ namespace Dryer_Server.Core
         public void StartAutoControl(int chamberId, string name, TimeSpan startPoint)
         {
             var chamber = ChambersDictionary[chamberId];
-            var startUtc = DateTime.UtcNow + startPoint;
+            var startUtc = DateTime.UtcNow - startPoint;
             var autoControl = autoControlPersistence.Load(name);
             chamber.StartNewAutomaticControl(autoControl, startUtc);
             autoControlPersistence.SaveState(chamberId, chamber.CurrentAutoControl);
