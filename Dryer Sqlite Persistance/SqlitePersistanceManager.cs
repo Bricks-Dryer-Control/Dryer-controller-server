@@ -72,7 +72,7 @@ namespace Dryer_Server.Persistance
         public void Save(int id, ChamberConvertedStatus status)
         {
             using var ctx = GetHistoricalCtx();
-            
+
             ctx.States.Add(new ChamberConvertedState(status, id));
             ctx.SaveChanges();
         }

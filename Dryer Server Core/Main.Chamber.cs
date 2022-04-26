@@ -194,7 +194,7 @@ namespace Dryer_Server.Core
                 return new ChamberConvertedStatus
                 {
                     Working = ChamberConvertedStatus.WorkingStatus.waiting,
-                    IsAuto = false,
+                    IsAuto = CurrentAutoControl?.Active ?? false,
                     QueuePosition = null,
                     InFlowPosition = positions[Configuration.InFlowActuatorNo - 1],
                     OutFlowPosition = positions[Configuration.OutFlowActuatorNo - 1],
@@ -252,6 +252,12 @@ namespace Dryer_Server.Core
             void IAutoControlledChamber.EnqueueAutoControl(IAutoValueGetter valueGetter)
             {
                 parrent.EnqueueAutoControl(Id, valueGetter);
+            }
+
+            internal void SetAuto(bool value)
+            {
+                currentStatus.IsAuto = value;
+                parrent.hisctoricalPersistance.Save(Id, currentStatus);
             }
         }
     }

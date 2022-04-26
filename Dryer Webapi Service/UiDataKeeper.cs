@@ -161,7 +161,7 @@ namespace Dryer_Server.WebApi
 
         public ChamberInfo GetChamber(int no)
         {
-            return chambers[no - 1];
+            return chambers?[no - 1];
         }
 
         public AdditionalInfo GetAdditionalInfo()
@@ -171,11 +171,16 @@ namespace Dryer_Server.WebApi
 
         public void AutoControlChanged(int no, IAutoControl autoControl)
         {
-            chambers[no - 1].AutoControlStatus = new AutoControlStatus(autoControl.StartDateUtc)
-            {
-                Name = autoControl.Name,
-            };
-            chambers[no - 1].Status.IsAuto = autoControl.Active;
+            var chamber = GetChamber(no);
+
+            if (chamber != null)
+            { 
+                chamber.AutoControlStatus = new AutoControlStatus(autoControl.StartDateUtc)
+                {
+                    Name = autoControl.Name,
+                };
+                chamber.Status.IsAuto = autoControl.Active;
+            }
         }
     }
 }

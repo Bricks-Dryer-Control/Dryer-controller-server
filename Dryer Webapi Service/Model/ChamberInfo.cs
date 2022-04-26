@@ -29,7 +29,7 @@ namespace Dryer_Server.WebApi.Model
             };
             Status = new ChamberStatus
             {
-                IsAuto = false,
+                IsAuto = autoControl?.Active ?? false,
                 QueuePosition = status.QueuePosition,
                 Working = status.Working,
                 IsActive = status.IsListening,

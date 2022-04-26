@@ -275,6 +275,7 @@ namespace Dryer_Server.Core
                 chamber.CurrentAutoControl?.Start();
             else
                 chamber.CurrentAutoControl?.Stop();
+            chamber.SetAuto(value);
         }
 
         record RoofConfig
