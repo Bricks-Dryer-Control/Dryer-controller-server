@@ -60,7 +60,7 @@ namespace Dryer_Server.Persistance
         public IEnumerable<IChamberStatusHistoricValue> GetStatusHistory(int id, DateTime startUtc, DateTime finishUtc)
         {
             using var ctx = GetHistoricalCtx();
-            
+
             return ctx.States
                 .Where(s => s.ChamberId == id)
                 .Where(s => s.TimestampUtc >= startUtc && s.TimestampUtc < finishUtc)
@@ -74,6 +74,7 @@ namespace Dryer_Server.Persistance
             using var ctx = GetHistoricalCtx();
             
             ctx.States.Add(new ChamberConvertedState(status, id));
+            ctx.SaveChanges();
         }
 
         public void Save(int id, ChamberSensors sensors)
@@ -81,6 +82,7 @@ namespace Dryer_Server.Persistance
             using var ctx = GetHistoricalCtx();
             
             ctx.Sensors.Add(new ChamberSensorValue(sensors, id));
+            ctx.SaveChanges();
         }
 
         public void Save(int id, ChamberConfiguration configuration)
@@ -88,6 +90,7 @@ namespace Dryer_Server.Persistance
             using var ctx = GetSettingsCtx();
 
             ctx.Chamber.Add(new ChamberSetting(configuration));
+            ctx.SaveChanges();
         }
 
         public IEnumerable<ChamberConfiguration> GetChamberConfigurations()

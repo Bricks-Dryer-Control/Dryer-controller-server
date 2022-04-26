@@ -20,11 +20,5 @@ namespace Dryer_Server.Persistance.Model.Historical
             ChamberId = id;
             TimestampUtc = DateTime.UtcNow;
         }
-
-        [NotMapped]
-        DateTime IChamberSensorHistoricValue.TimeUtc => TimestampUtc;
-
-        [NotMapped]
-        ChamberSensors IChamberSensorHistoricValue.Value => this;
     }
 }

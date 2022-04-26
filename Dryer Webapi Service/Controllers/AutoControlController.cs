@@ -30,7 +30,7 @@ namespace Dryer_Server.WebApi.Controllers
         [Route("{name}")]
         public AutoControl GetControlWithItems(string name)
         {
-            return persistence.Load(name);
+            return persistence.Load(name); ;
         }
 
         [HttpDelete]

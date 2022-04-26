@@ -24,8 +24,5 @@ namespace Dryer_Server.Persistance.Model.Historical
 
         [NotMapped]
         public DateTime TimeUtc => TimestampUtc;
-
-        [NotMapped]
-        public ChamberConvertedStatus Value => this;
     }
 }
