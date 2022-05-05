@@ -30,6 +30,7 @@ namespace Dryer_Server.WebApi.Model
                 Temperature = autoControlItem.Temperature,
                 InFlow = autoControlItem.InFlow,
                 OutFlow = autoControlItem.OutFlow,
+                ThroughFlow = autoControlItem.ThroughFlow,
             };
         }
     }
