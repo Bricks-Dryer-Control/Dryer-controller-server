@@ -76,6 +76,7 @@ namespace Dryer_Server.WebApi
                 QueuePosition = values.QueuePosition,
                 Working = values.Working,
                 IsActive = values.IsListening,
+                OutFlowOffset = values.OutFlowOffset,
             };
         }
         

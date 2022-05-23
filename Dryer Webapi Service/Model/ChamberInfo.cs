@@ -33,6 +33,7 @@ namespace Dryer_Server.WebApi.Model
                 QueuePosition = status.QueuePosition,
                 Working = status.Working,
                 IsActive = status.IsListening,
+                OutFlowOffset = status.OutFlowOffset,
             };
 
             if (autoControl != null)

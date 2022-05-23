@@ -3,14 +3,16 @@ using System;
 using Dryer_Server.Persistance.Model.Historical;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Dryer_Sqlite_Persistance.Migrations.Historical
 {
     [DbContext(typeof(HistoricalContext))]
-    partial class HistoricalContextModelSnapshot : ModelSnapshot
+    [Migration("20220522135824_OffsetHistory")]
+    partial class OffsetHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -10,5 +10,6 @@ namespace Dryer_Server.WebApi.Model
         public bool IsAuto { get; set; }
         public int? QueuePosition { get; set; }
         public bool IsActive { get; set; }
+        public int OutFlowOffset { get; set; }
     }
 }

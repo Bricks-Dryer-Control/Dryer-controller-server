@@ -75,6 +75,7 @@ namespace Dryer_Server.Core
                 {
                     var exs = new List<Exception>();
                     currentStatus = ConvertStatus(v);
+                    currentStatus.OutFlowOffset = Configuration.OutFlowOffset;
 
                     TrySave(exs, currentStatus);
                     TrySendToUi(exs, currentStatus);
@@ -139,6 +140,7 @@ namespace Dryer_Server.Core
                 Sets.InFlow = status.InFlowSet;
                 Sets.OutFlow = status.OutFlowSet;
                 Sets.ThroughFlow = status.ThroughFlowSet;
+                status.OutFlowOffset = Configuration.OutFlowOffset;
                 currentStatus = status;
             }
 
