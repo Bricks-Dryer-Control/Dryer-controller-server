@@ -23,12 +23,15 @@ namespace Dryer_Server.WebApi
             persistanceManager = new SqlitePersistanceManager(configuration);
             var listenerPort = new PortSettings();
             var controllersPort = new PortSettings();
+            var dirSensor = new DirSensorSettings();
+
             Configuration.GetSection("PortConfigurations").GetSection("Listener").Bind(listenerPort);
             Configuration.GetSection("PortConfigurations").GetSection("Controllers").Bind(controllersPort);
+            Configuration.GetSection("DirectionSensor").Bind(dirSensor);
             var simulatorConfig = Configuration.GetValue<string>("Simulator");
             if (string.IsNullOrEmpty(simulatorConfig))
             {
-                main = new Core.Main(ui, persistanceManager, listenerPort, controllersPort);
+                main = new Core.Main(ui, persistanceManager, listenerPort, controllersPort, dirSensor);
             }
             else
             {

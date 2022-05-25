@@ -76,6 +76,17 @@ namespace Dryer_Server.Dryer_Simulator
             Console.WriteLine("Stop all");
         }
 
+        public CommonStatus GetCommonStatus()
+        {
+            return new CommonStatus
+            {
+                Direction = isChamberListen(1),
+                InQueue = 1,
+                TurnedOn = 2,
+                WorkingNow = 3,
+            };
+        }
+
         protected record StatusReceiver
         {
             public ChamberConfiguration chamber;

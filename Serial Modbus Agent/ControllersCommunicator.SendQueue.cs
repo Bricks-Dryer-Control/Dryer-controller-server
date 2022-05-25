@@ -11,6 +11,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
         {
             private object ItemsLock = new object();
             private List<IQueueItem> Items { get; } = new List<IQueueItem>();
+            public int Len => Items.Count;
+
             private ControllersCommunicator communicator;
 
             public SendQueue(ControllersCommunicator communicator)

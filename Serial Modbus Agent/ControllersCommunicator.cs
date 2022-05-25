@@ -16,6 +16,9 @@ namespace Dryer_Server.Serial_Modbus_Agent
         private const ushort ReadPositionsStartAddress = 4599;
         private const ushort WriteActuatorsAddress = 4603;
         private const ushort WriteSpecialAddress = 4606;
+        
+        private readonly DirSensor dirSensor;
+
         private static ushort[] WriteActuatorsStartCommand { get; } = new ushort[] { 1, 0 };
         private static ushort[] WriteSpecialStartCommand { get; } = new ushort[] { 5, 0 };
         private static ushort[] WriteStopCommand { get; } = new ushort[] { 0, 0 };
@@ -45,9 +48,11 @@ namespace Dryer_Server.Serial_Modbus_Agent
             queue = new SendQueue(this);
         }
 
-        public ControllersCommunicator(PortSettings controllersPort)
+        public ControllersCommunicator(PortSettings controllersPort, DirSensorSettings dirSensor)
             :this(controllersPort.Port, controllersPort.Baud, controllersPort.DataBits, controllersPort.Parity, controllersPort.StopBits)
-        { }
+        {
+            this.dirSensor = new DirSensor(dirSensor);
+        }
 
         protected ControllersCommunicator(IModbusSerialMaster rtu)
         {
@@ -109,6 +114,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                     if (!chamberEnumerator.MoveNext())
                     {
                         chamberEnumerator = chambers.Where(c => c.Active).GetEnumerator();
+                        Read(dirSensor);
                         if (!chamberEnumerator.MoveNext())
                             continue;
                     }
@@ -155,6 +161,36 @@ namespace Dryer_Server.Serial_Modbus_Agent
                     }
                     catch (Exception)
                     {}
+                }
+                Task.Delay(200).Wait();
+            }
+        }
+
+        private void Read(DirSensor dirSensor)
+        {
+            try
+            {
+                if (!(dirSensor != null
+                    && dirSensor.ControllerId < 128
+                    && dirSensor.InputNumber < 128))
+                {
+                    return;
+                }
+
+                var status = rtu.ReadInputs(dirSensor.ControllerId, dirSensor.InputNumber, 1);
+                dirSensor.Status = status.First();
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine($"Read Error on dir sensor {dirSensor.ControllerId}:\n{e}");
+                if (!sp.IsOpen)
+                {
+                    try
+                    {
+                        sp.Open();
+                    }
+                    catch (Exception)
+                    { }
                 }
                 Task.Delay(200).Wait();
             }
@@ -245,6 +281,17 @@ namespace Dryer_Server.Serial_Modbus_Agent
         public bool IsChamberQueued(int id)
         {
             return queue.IsQueued(Convert.ToByte(id));
+        }
+
+        public CommonStatus GetCommonStatus()
+        {
+            return new CommonStatus
+            {
+                Direction = dirSensor?.Status ?? false,
+                InQueue = queue.Len,
+                TurnedOn = chambers.Where(c => c.Active).Count(),
+                WorkingNow = inMotion.Count(),
+            };
         }
     }
 }

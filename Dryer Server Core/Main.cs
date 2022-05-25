@@ -48,13 +48,13 @@ namespace Dryer_Server.Core
             controllersCommunicator = modbusControllerCommunicator;
         }
 
-        public Main(IUiInterface ui, SqlitePersistanceManager persistanceManager, PortSettings listenerPort, PortSettings controllersPort)
+        public Main(IUiInterface ui, SqlitePersistanceManager persistanceManager, PortSettings listenerPort, PortSettings controllersPort, DirSensorSettings dirSensor)
             : this(ui, 
                   persistanceManager, 
                   persistanceManager, 
                   persistanceManager,
                   new SerialModbusChamberListener(listenerPort), 
-                  new ControllersCommunicator(controllersPort))
+                  new ControllersCommunicator(controllersPort, dirSensor))
         { }
 
         public async Task InitializeAsync()
@@ -233,13 +233,7 @@ namespace Dryer_Server.Core
 
         public CommonStatus GetCommon()
         {
-            return new CommonStatus
-            {
-                Direction = false,
-                InQueue = 0,
-                TurnedOn = 0,
-                WorkingNow = 0,
-            };
+            return controllersCommunicator.GetCommonStatus();
         }
 
         public void ChangeChamberReading(int no, bool value)

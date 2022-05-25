@@ -14,6 +14,6 @@ namespace Dryer_Server.Interfaces
         bool isChamberListen(int id);
         void setChamberListen(int id, bool value);
         bool IsChamberQueued(int id);
-
+        CommonStatus GetCommonStatus();
     }
 }
