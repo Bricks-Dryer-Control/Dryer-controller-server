@@ -80,12 +80,14 @@ namespace Dryer_Server.Dryer_Simulator
         {
             return new CommonStatus
             {
-                Direction = isChamberListen(1),
+                Direction = DirSensor ?? false,
                 InQueue = 1,
                 TurnedOn = 2,
                 WorkingNow = 3,
             };
         }
+
+        public bool? DirSensor => isChamberListen(1);
 
         protected record StatusReceiver
         {

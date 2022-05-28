@@ -272,6 +272,9 @@ namespace Dryer_Server.Core
             chamber.SetAuto(value);
         }
 
+
+        public bool? DirSensor => controllersCommunicator.DirSensor;
+
         record RoofConfig
         {
             public int No { get; set; }

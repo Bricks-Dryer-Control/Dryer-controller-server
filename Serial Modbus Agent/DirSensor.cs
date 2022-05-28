@@ -12,7 +12,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
             this.settings = settings;
         }
 
-        public bool Status { get; set; }
+        public bool? Status { get; set; }
         public byte ControllerId => settings.ControllerId;
         public ushort InputNumber => settings.InputNumber;
     }

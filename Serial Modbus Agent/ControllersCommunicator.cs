@@ -295,5 +295,7 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 WorkingNow = inMotion.Count(),
             };
         }
+
+        public bool? DirSensor => dirSensor?.Status;
     }
 }

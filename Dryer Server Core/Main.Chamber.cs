@@ -27,6 +27,10 @@ namespace Dryer_Server.Core
 
             ChamberSensors IAutoControlledChamber.ChamberSensors => throw new NotImplementedException();
 
+            public int OutFlowOffset => Configuration.OutFlowOffset;
+
+            public bool? DirSensor => parrent.DirSensor;
+
             public Chamber(ChamberConfiguration configuration, Main parrent, AdditionalConfig additional, IAutoControl autoControl)
             {
                 Configuration = configuration;

@@ -64,7 +64,15 @@ namespace Dryer_Server.Dryer_Auto_Control
         {
             if (finished)
             {
-                timer.Stop();
+                if (chamber.OutFlowOffset == 0)
+                {
+                    timer.Stop();
+                }
+                else
+                {
+                    if (CheckOutFlowAfterFinish())
+                        PutOnQueue();
+                }
                 return;
             }
 
@@ -73,8 +81,9 @@ namespace Dryer_Server.Dryer_Auto_Control
                 return;
 
             GetCurrentEstimates(now, out var inFlow, out var outFlow, out var throughFlow);
-
-            if (CheckSetValues(inFlow, outFlow, throughFlow))
+            ManipulateOutFlow(ref outFlow);
+            
+            if (CheckSetValues(ref inFlow, ref outFlow, ref throughFlow))
                 PutOnQueue();
         }
 
@@ -86,7 +95,8 @@ namespace Dryer_Server.Dryer_Auto_Control
                 if (!enumerator.MoveNext())
                 {
                     finished = true;
-                    timer.Stop();
+                    if (chamber.OutFlowOffset == 0)
+                        timer.Stop();
                 }
             }
 
@@ -114,29 +124,21 @@ namespace Dryer_Server.Dryer_Auto_Control
             return field(last) + (int)(proportion * (field(next) - field(last)));
         }
 
-        private bool CheckSetValues(int inFlow, int outFlow, int throughFlow)
+        private bool CheckOutFlowAfterFinish()
         {
-            var d = autoControlData.ControlDifference;
-            var status = chamber.ConvertedStatus;
+            var outFlow = last.OutFlow;
+            ManipulateOutFlow(ref outFlow);
 
-            if (inFlow < autoControlData.MinInFlow)
-                inFlow = autoControlData.MinInFlow;
-            else if (inFlow > autoControlData.MaxInFlow)
-                inFlow = autoControlData.MaxInFlow;
-            if (inFlow + d < status.InFlowPosition || inFlow - d > status.InFlowPosition)
-                return true;
-            
             if (outFlow < autoControlData.MinOutFlow)
                 outFlow = autoControlData.MinOutFlow;
             else if (outFlow > autoControlData.MaxOutFlow)
                 outFlow = autoControlData.MaxOutFlow;
-            if (outFlow + d < status.OutFlowPosition || outFlow - d > status.OutFlowPosition)
-                return true;
 
-            if (throughFlow + d < status.ThroughFlowPosition || throughFlow - d > status.ThroughFlowPosition)
-                return true;
+            var d = autoControlData.ControlDifference;
+            var status = chamber.ConvertedStatus;
 
-            return false;
+            return outFlow + d < status.OutFlowPosition 
+                || outFlow - d > status.OutFlowPosition;
         }
 
         private void PutOnQueue()
@@ -155,6 +157,8 @@ namespace Dryer_Server.Dryer_Auto_Control
         {
             var now = DateTime.UtcNow - StartDateUtc;
             GetCurrentEstimates(now, out var inFlow, out var outFlow, out var throughFlow);
+            ManipulateOutFlow(ref outFlow);
+            CheckSetValues(ref inFlow, ref outFlow, ref throughFlow);
             return chamber.SetValuesGetActuators(inFlow, outFlow, throughFlow);
         }
     }
