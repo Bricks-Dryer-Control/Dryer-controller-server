@@ -5,6 +5,7 @@ using Dryer_Server.Persistance.Model.Historical;
 using Dryer_Server.Persistance.Model.Settings;
 using Dryer_Server.WebApi.Controllers;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using System.Linq;
 using Xunit;
 
@@ -13,13 +14,11 @@ namespace Webapi_Service_Tests
     public class SqliteAutoControlControllerTests : AutoControlControllerTest
     {
         private readonly IAutoControlPersistance persistence;
-        private readonly IMainController mainController;
+        private readonly IMainController mainController = Mock.Of<IMainController>();
         public SqliteAutoControlControllerTests() :
             base(new DbContextOptionsBuilder<AutoControlContext>().UseSqlite("Filename=Test.db").Options)
         {
-            persistence = new SqlitePersistanceManager(ContextOptions,
-                new DbContextOptions<HistoricalContext>(), 
-                new DbContextOptions<SettingsContext>());
+            persistence = new SqlitePersistanceManager(ContextOptions);
         }
 
 

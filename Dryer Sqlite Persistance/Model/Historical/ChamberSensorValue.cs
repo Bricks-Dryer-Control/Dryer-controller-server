@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dryer_Server.Persistance.Model.Historical
 {
     [Table("Sensor")]
-    public record ChamberSensorValue: ChamberSensors, IChamberSensorHistoricValue
+    public record ChamberSensorValue: ChamberSensors, IHistoricValue
     {        
         public int ChamberId { get; set; }
         public DateTime TimestampUtc { get; set;}
@@ -19,6 +19,16 @@ namespace Dryer_Server.Persistance.Model.Historical
         {
             ChamberId = id;
             TimestampUtc = DateTime.UtcNow;
+        }
+
+        [NotMapped]
+        public DateTime TimeUtc => TimestampUtc;
+
+        public bool DataEquals(IHistoricValue other)
+        {
+            return other is ChamberSensorValue o
+                && ChamberId == o.ChamberId
+                && base.Equals(o);
         }
     }
 }

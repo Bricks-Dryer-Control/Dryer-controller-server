@@ -74,10 +74,10 @@ namespace Dryer_Server.WebApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
             var initTask = main.InitializeAsync();
-
+            lifetime.ApplicationStopping.Register(OnShutdown);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -90,9 +90,15 @@ namespace Dryer_Server.WebApi
             app.UseRouting();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
+            
             initTask.Wait();
             main.Start();
+        }
+
+        private void OnShutdown()
+        {
+            main.Dispose();
+            persistanceManager.Dispose();
         }
     }
 }

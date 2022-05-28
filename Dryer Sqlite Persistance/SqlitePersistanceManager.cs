@@ -11,13 +11,14 @@ using System.Linq;
 namespace Dryer_Server.Persistance
 {
     public class SqlitePersistanceManager : IDryerHisctoricalValuesPersistance, 
-        IDryerConfigurationPersistance, IAutoControlPersistance
+        IDryerConfigurationPersistance, IAutoControlPersistance, IDisposable
     {
-        readonly DbContextOptions<SettingsContext> settingsCtxOptions;
-        readonly DbContextOptions<HistoricalContext> historicalCtxOptions;
-        readonly DbContextOptions<AutoControlContext> autocontrolCtxOptions;
+        private readonly DbContextOptions<SettingsContext> settingsCtxOptions;
+        private readonly DbContextOptions<HistoricalContext> historicalCtxReadOnlyOptions;
+        private readonly DbContextOptions<AutoControlContext> autocontrolCtxOptions;
+        private readonly HistoricalManager historicalManager;
 
-        HistoricalContext GetHistoricalCtx() => new HistoricalContext(historicalCtxOptions);
+        HistoricalContext GetHistoricalCtx() => new HistoricalContext(historicalCtxReadOnlyOptions);
         SettingsContext GetSettingsCtx() => new SettingsContext(settingsCtxOptions);
         AutoControlContext GetAutoControlCtx() => new AutoControlContext(autocontrolCtxOptions);
 
@@ -27,25 +28,23 @@ namespace Dryer_Server.Persistance
             settingsBuilder.UseSqlite(config.GetConnectionString("SettingsContext"));
             settingsCtxOptions = settingsBuilder.Options;
 
-            var historicalBuilder = new DbContextOptionsBuilder<HistoricalContext>();
-            historicalBuilder.UseSqlite(config.GetConnectionString("HistoricalContext"));
-            historicalCtxOptions = historicalBuilder.Options;
+            var historicalReadOnlyBuilder = new DbContextOptionsBuilder<HistoricalContext>();
+            historicalReadOnlyBuilder.UseSqlite(config.GetConnectionString("HistoricalContext").TrimEnd(';') + ";Mode=ReadOnly;");
+            historicalCtxReadOnlyOptions = historicalReadOnlyBuilder.Options;
 
             var autocontrolBuilder = new DbContextOptionsBuilder<AutoControlContext>();
             autocontrolBuilder.UseSqlite(config.GetConnectionString("AutoControlContext"));
             autocontrolCtxOptions = autocontrolBuilder.Options;
+
+            historicalManager = new HistoricalManager(config);
         }
 
-        public SqlitePersistanceManager(DbContextOptions<AutoControlContext> autoControlContextOptions,
-            DbContextOptions<HistoricalContext> historicalContextOptions,
-            DbContextOptions<SettingsContext> settingsContextOptions)
+        public SqlitePersistanceManager(DbContextOptions<AutoControlContext> autoControlContextOptions)
         {
-            settingsCtxOptions = settingsContextOptions;
-            historicalCtxOptions = historicalContextOptions;
             autocontrolCtxOptions = autoControlContextOptions;
         }
 
-        public IEnumerable<IChamberSensorHistoricValue> GetSensorsHistory(int id, DateTime startUtc, DateTime finishUtc)
+        public IEnumerable<IHistoricValue> GetSensorsHistory(int id, DateTime startUtc, DateTime finishUtc)
         {
             using var ctx = GetHistoricalCtx();
             
@@ -53,11 +52,11 @@ namespace Dryer_Server.Persistance
                 .Where(s => s.ChamberId == id)
                 .Where(s => s.TimestampUtc >= startUtc && s.TimestampUtc < finishUtc)
                 .OrderBy(s => s.TimestampUtc)
-                .Select(s => (IChamberSensorHistoricValue)s)
+                .Select(s => (IHistoricValue)s)
                 .ToList();
         }
 
-        public IEnumerable<IChamberStatusHistoricValue> GetStatusHistory(int id, DateTime startUtc, DateTime finishUtc)
+        public IEnumerable<IHistoricValue> GetStatusHistory(int id, DateTime startUtc, DateTime finishUtc)
         {
             using var ctx = GetHistoricalCtx();
 
@@ -65,25 +64,15 @@ namespace Dryer_Server.Persistance
                 .Where(s => s.ChamberId == id)
                 .Where(s => s.TimestampUtc >= startUtc && s.TimestampUtc < finishUtc)
                 .OrderBy(s => s.TimestampUtc)
-                .Select(s => (IChamberStatusHistoricValue)s)
+                .Select(s => (IHistoricValue)s)
                 .ToList();
         }
 
         public void Save(int id, ChamberConvertedStatus status)
-        {
-            using var ctx = GetHistoricalCtx();
-
-            ctx.States.Add(new ChamberConvertedState(status, id));
-            ctx.SaveChanges();
-        }
+            => historicalManager.Add(new ChamberConvertedState(status, id));
 
         public void Save(int id, ChamberSensors sensors)
-        {
-            using var ctx = GetHistoricalCtx();
-            
-            ctx.Sensors.Add(new ChamberSensorValue(sensors, id));
-            ctx.SaveChanges();
-        }
+            => historicalManager.Add(new ChamberSensorValue(sensors, id));
 
         public void Save(int id, ChamberConfiguration configuration)
         {
@@ -160,7 +149,7 @@ namespace Dryer_Server.Persistance
 
         public void Dispose()
         {
-            
+            historicalManager.Dispose();
         }
 
         IEnumerable<AutoControl> IAutoControlPersistance.GetControls()
