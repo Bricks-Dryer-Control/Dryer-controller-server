@@ -16,7 +16,9 @@ namespace Dryer_Server.Serial_Modbus_Agent
         private const ushort ReadPositionsStartAddress = 4599;
         private const ushort WriteActuatorsAddress = 4603;
         private const ushort WriteSpecialAddress = 4606;
-        
+        private const ushort ReadInputXAddress = 0x0400;
+
+
         private readonly DirSensor dirSensor;
 
         private static ushort[] WriteActuatorsStartCommand { get; } = new ushort[] { 1, 0 };
@@ -176,8 +178,8 @@ namespace Dryer_Server.Serial_Modbus_Agent
                 {
                     return;
                 }
-
-                var status = rtu.ReadInputs(dirSensor.ControllerId, dirSensor.InputNumber, 1);
+                var address = (ushort)(ReadInputXAddress + dirSensor.InputNumber);
+                var status = rtu.ReadInputs(dirSensor.ControllerId, address, 1);
                 dirSensor.Status = status.First();
             }
             catch (Exception e)
