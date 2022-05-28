@@ -137,7 +137,7 @@ namespace Dryer_Server.Dryer_Auto_Control
             var d = autoControlData.ControlDifference;
             var status = chamber.ConvertedStatus;
 
-            return outFlow + d < status.OutFlowPosition 
+            return outFlow + d < status.OutFlowPosition
                 || outFlow - d > status.OutFlowPosition;
         }
 
@@ -159,6 +159,7 @@ namespace Dryer_Server.Dryer_Auto_Control
             GetCurrentEstimates(now, out var inFlow, out var outFlow, out var throughFlow);
             ManipulateOutFlow(ref outFlow);
             CheckSetValues(ref inFlow, ref outFlow, ref throughFlow);
+            lastSet = now;
             return chamber.SetValuesGetActuators(inFlow, outFlow, throughFlow);
         }
     }
