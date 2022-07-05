@@ -207,12 +207,12 @@ namespace Dryer_Server.Core
             controllersCommunicator.SendSpecial(Wents[no].WentNo, value);
         }
 
-        public void ChangeRoof(int no, bool isRoof)
+        public void ChangeRoof(int no, bool isNotRoof)
         {
             var roofNo = Roofs[no].RoofNo;
             var throughNo = Roofs[no].ThroughNo;
-            var roofSet = isRoof ? 480 : 0;
-            var throughSet = isRoof ? 0 : 480;
+            var throughSet = isNotRoof ? 480 : 0;
+            var roofSet = isNotRoof ? 0 : 480;
 
             ChambersDictionary[roofNo].Sets.Special = roofSet;
             ChambersDictionary[throughNo].Sets.Special = throughSet;

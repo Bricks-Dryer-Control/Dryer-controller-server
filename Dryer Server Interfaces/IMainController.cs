@@ -11,7 +11,7 @@ namespace Dryer_Server.Interfaces
         void Stop();
         void ChangeActuators(int no, int inFlow, int outFlow, int throughFlow);
         void ChangeWent(int no, int value);
-        void ChangeRoof(int no, bool isRoof);
+        void ChangeRoof(int no, bool isNotRoof);
         void StopAll();
         CommonStatus GetCommon();
         void ChangeChamberReading(int no, bool value);

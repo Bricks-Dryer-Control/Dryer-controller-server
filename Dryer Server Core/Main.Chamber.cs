@@ -199,7 +199,7 @@ namespace Dryer_Server.Core
 
                 return new ChamberConvertedStatus
                 {
-                    Working = ChamberConvertedStatus.WorkingStatus.waiting,
+                    Working = GetStatus(v),
                     IsAuto = CurrentAutoControl?.Active ?? false,
                     QueuePosition = null,
                     InFlowPosition = positions[Configuration.InFlowActuatorNo - 1],

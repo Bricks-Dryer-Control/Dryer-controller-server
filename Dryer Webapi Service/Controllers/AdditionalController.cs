@@ -33,9 +33,9 @@ namespace Dryer_Server.WebApi.Controllers
 
         [HttpPost]
         [Route("Roof/{no}")]
-        public AdditionalInfo Roof(int no, [FromBody]bool roof)
+        public AdditionalInfo Roof(int no, [FromBody]bool notRoof)
         {
-            controller.ChangeRoof(no, roof);
+            controller.ChangeRoof(no, notRoof);
             return data.GetAdditionalInfo();
         }
     }
